@@ -658,17 +658,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dialoguer"
-version = "0.10.1"
-dependencies = [
- "console",
- "fuzzy-matcher",
- "tempfile",
- "unicode-segmentation",
- "zeroize",
-]
-
-[[package]]
 name = "digest"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1072,15 +1061,17 @@ dependencies = [
 [[package]]
 name = "geekbar_core"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2dcdeb1a0365a07fb4a0161aef223b685cbc8f71255693020414403734a54080"
 dependencies = [
  "chrono",
  "clipboard",
  "crossbeam-channel",
  "ctrlc",
- "dialoguer",
  "directories",
  "enigo",
  "futures",
+ "geekbar_dialoguer",
  "handlebars",
  "log",
  "notify-rust",
@@ -1095,6 +1086,19 @@ dependencies = [
  "typetag",
  "url",
  "uuid 1.2.1",
+]
+
+[[package]]
+name = "geekbar_dialoguer"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43b0d2ebeaa2c458a33ec42d0b5154b0f67f943feae8a88fc9de9bff98dd26f6"
+dependencies = [
+ "console",
+ "fuzzy-matcher",
+ "tempfile",
+ "unicode-segmentation",
+ "zeroize",
 ]
 
 [[package]]

@@ -3,8 +3,9 @@ import { changeColor } from "seemly";
 import { createHoverColor, createPressedColor } from "../utils";
 
 const colors = {
-  backgroundColor: '#000',
-  primaryColor: "#63E2B7",
+  baseColor: '#fff',
+  backgroundColor: '#171717',
+  primaryColor: "#095188",
   infoColor: "#4B70FA",
   successColor: "#63E2B7",
   errorColor: "#EB3B61",
@@ -18,7 +19,7 @@ const colors = {
   placeholderColorDisabled: "#848484",
   tableHeaderColor: "#282828",
   dividerColor: "#5B5B5B",
-  hoverColor: "rgba(79, 178, 51, 0.15)",
+  hoverColor: "#363636",
   closeIconColor: "#D6D6D6",
   modalColor: "#282828",
   clearColor: "#ADADAD",
@@ -33,7 +34,7 @@ const theme: Theme = {
   vars: {
     ...colors,
     baseColor: "#fff",
-    hoverColor: changeColor(colors.primaryColor, { alpha: 0.1 }),
+    // hoverColor: changeColor(colors.primaryColor, { alpha: 0.1 }),
     primaryColorHover: createHoverColor(colors.primaryColor),
     primaryColorPressed: createPressedColor(colors.primaryColor),
     infoColorHover: createHoverColor(colors.infoColor),

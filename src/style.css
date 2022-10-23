@@ -18,7 +18,7 @@ html, body, #app, .n-config-provider {
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 2px;
     height: 8px;
 }
 ::-webkit-scrollbar-track {

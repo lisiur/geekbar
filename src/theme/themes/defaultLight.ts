@@ -3,8 +3,9 @@ import { composite, changeColor } from "seemly";
 import { createHoverColor, createPressedColor } from "../utils";
 
 const colors = {
+  baseColor: '#000',
   backgroundColor: '#fff',
-  primaryColor: "#4FB233",
+  primaryColor: "#095188",
   infoColor: "#335FFF",
   successColor: "#4FB233",
   errorColor: "#D92149",

@@ -124,38 +124,39 @@ export async function getCurrentTheme() {
 }
 
 export async function onWindowBlur(fn: () => any) {
-  event.listen("tauri://blur", fn);
+  return event.listen("tauri://blur", fn);
 }
 
 export async function onWindowFocus(fn: () => any) {
-  event.listen("tauri://focus", fn);
+  return event.listen("tauri://focus", fn);
 }
 
 export async function onWindowClose(fn: () => any) {
-  event.listen("tauri://close-requested", fn);
+  return event.listen("tauri://close-requested", fn);
 }
 
 export async function onWindowCreated(fn: () => any) {
-  event.listen("tauri://window-created", fn);
+  return event.listen("tauri://window-created", fn);
 }
 
 export async function onWindowDestroyed(fn: () => any) {
-  event.listen("tauri://destroyed", fn);
+  return event.listen("tauri://destroyed", fn);
 }
 
 export async function onWindowResize(fn: () => any) {
-  event.listen("tauri://resize", fn);
+  return event.listen("tauri://resize", fn);
 }
 
 export async function onThemeChange(fn: () => any) {
-  event.listen("tauri://theme-changed", fn);
+  return event.listen("tauri://theme-changed", fn);
 }
 
 export async function registerToggleWindowShortcut(shortcut: string) {
-  if (!(await globalShortcut.isRegistered(shortcut))) {
-    await globalShortcut.register(shortcut, toggleWindowVisible);
-    event.listen("tauri://destroyed", async () => {
-      await globalShortcut.unregister(shortcut);
-    });
+  if (await globalShortcut.isRegistered(shortcut)) {
+    await globalShortcut.unregister(shortcut)
   }
+  await globalShortcut.register(shortcut, toggleWindowVisible);
+  event.listen("tauri://destroyed", async () => {
+    await globalShortcut.unregister(shortcut);
+  });
 }

@@ -1,4 +1,11 @@
-import { computed, onMounted, watch, ref } from "vue";
+import {
+  computed,
+  onMounted,
+  watch,
+  ref,
+  onBeforeMount,
+  onBeforeUnmount,
+} from "vue";
 import { useState } from "../../hooks/state";
 import { NInput } from "naive-ui";
 import { debounce } from "lodash-es";
@@ -21,7 +28,7 @@ interface Option {
   icon?: string;
   workParams: any;
 }
-export const INPUT_FONT_SIZE = 20;
+export const INPUT_FONT_SIZE = 24;
 export const OPTION_TITLE_FONT_SIZE = 20;
 export const OPTION_DESC_FONT_SIZE = 14;
 export const INPUT_HEIGHT = 64;
@@ -37,7 +44,7 @@ export function useService() {
   const { state, resetState } = useState({
     keyword: "",
     options: [] as Array<Option>,
-    active: 0,
+    active: -1,
   });
 
   const refs = {
@@ -51,7 +58,7 @@ export function useService() {
     });
   });
 
-  // Calc window height and reset windowHeight
+  // Calc window height
   const windowHeight = computed(() => {
     let height = INPUT_HEIGHT;
     if (state.options.length) {
@@ -60,81 +67,119 @@ export function useService() {
     }
     return height;
   });
-  watch(
-    windowHeight,
-    () => {
-      setWindowSize({
-        width: WINDOW_WIDTH,
-        height: windowHeight.value,
-      });
-    },
-    {
-      immediate: true,
-    }
-  );
+
+  // Dynamic reset windowHeight
+  onBeforeMount(() => {
+    const unwatch = watch(
+      windowHeight,
+      () => {
+        setWindowSize({
+          width: WINDOW_WIDTH,
+          height: windowHeight.value,
+        });
+      },
+      {
+        immediate: true,
+      }
+    );
+    onBeforeUnmount(unwatch);
+  });
 
   // Auto focus input when window is focused
-  onWindowFocus(() => {
-    refs.input.value?.focus();
-    refs.input.value?.select();
+  onBeforeMount(async () => {
+    const unListen = await onWindowFocus(() => {
+      refs.input.value?.focus();
+      refs.input.value?.select();
+    });
+    onBeforeUnmount(unListen);
   });
-  onWindowBlur(hideWindow);
+  // onWindowBlur(hideWindow);
 
   // Listen show event
-  event.listen("show", () => {
-    showWindow();
+  onBeforeMount(async () => {
+    const unListen = await event.listen("show", showWindow);
+    onBeforeUnmount(unListen);
   });
 
   // Listen reload event
-  event.listen("reload", () => {
-    invoke("reload");
+  onBeforeMount(async () => {
+    const unListen = await event.listen("reload", () => {
+      invoke("reload");
+    });
+    onBeforeUnmount(unListen);
   });
 
   // Listen work params
-  event.listen("work_params", (event: any) => {
-    const workParams = event.payload;
-    const prompt = workParams.params?.prompt;
-    if (!prompt) {
-      execute(workParams);
-    } else {
-      if (prompt.type === "FuzzySelect" || prompt.type === "Select") {
-        state.options = prompt.config.options.map((item: any) => {
-          return {
-            ...item,
-            workParams,
-          };
-        });
-        workParams.params.prompt = null;
+  onBeforeMount(async () => {
+    const unListen = await event.listen("work_params", (event: any) => {
+      const workParams = event.payload;
+      const prompt = workParams.params?.prompt;
+      if (!prompt) {
+        execute(workParams);
+      } else {
+        if (prompt.type === "FuzzySelect" || prompt.type === "Select") {
+          state.options = prompt.config.options.map((item: any) => {
+            return {
+              ...item,
+              workParams,
+            };
+          });
+          if (state.options[0]?.mark) {
+            state.active = -1;
+          } else {
+            state.active = 0;
+          }
+          workParams.params.prompt = null;
+        }
       }
-    }
+    });
+    onBeforeUnmount(unListen);
   });
 
   // Searching
-  const debounceSearch = debounce(search, 200);
-  watch(
-    () => state.keyword,
-    () => {
-      debounceSearch();
-    }
-  );
+  onBeforeMount(() => {
+    const debounceSearch = debounce(search, 100);
+    const unwatch = watch(
+      () => state.keyword,
+      () => {
+        debounceSearch();
+      }
+    );
+    onBeforeUnmount(unwatch);
+  });
 
   function keyupHandler(e: KeyboardEvent) {
     const { code, ctrlKey, altKey, shiftKey, metaKey } = e;
     switch (code) {
       case "ArrowDown": {
+        if (state.active === -1) {
+          return;
+        }
         state.active = (state.active + 1) % state.options.length;
         break;
       }
       case "ArrowUp": {
+        if (state.active === -1) {
+          return;
+        }
         state.active =
           (state.active + state.options.length - 1) % state.options.length;
         break;
       }
       case "Enter": {
+        if (state.active === -1) {
+          return;
+        }
         const option = state.options[state.active];
         if (option) {
           executeOption();
         }
+        break;
+      }
+      case "Escape": {
+        hideWindow();
+        resetState();
+        break;
       }
     }
   }
@@ -151,8 +196,8 @@ export function useService() {
       value: arg,
     });
     if (!triggered) {
-      state.active = 0;
-      state.options = [];
+      state.options = []
+      state.active = -1
     }
   }
 
@@ -165,6 +210,7 @@ export function useService() {
   }
 
   async function execute(workParams: any, value = null) {
+    console.log("execute", workParams, value);
     await invoke("execute", {
       workParams,
       value,

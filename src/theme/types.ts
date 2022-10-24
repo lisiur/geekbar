@@ -3,6 +3,7 @@ import { ThemeCommonVars } from "naive-ui";
 export type ThemeColor = "light" | "dark";
 export interface ThemeVars extends ThemeCommonVars {
   backgroundColor: string
+  inputFocusColor: string
 }
 
 export interface Theme {

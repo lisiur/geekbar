@@ -13,3 +13,22 @@ export function vIfElse<T>(cond: any, thenVnode: () => T, elseVnode: () => T) {
     return elseVnode()
   }
 }
+
+export function vMatch<T>(...branches: Array<[cond: any, vnode: () => T]>) {
+  for (const [cond, vnode] of branches) {
+    if (cond) {
+      return vnode()
+    }
+  }
+  return null
+}
+
+export function vCase<T>(...branches: Array<[cond: any, vnode: () => T]>) {
+  const nodes = []
+  for (const [cond, vnode] of branches) {
+    if (cond) {
+      nodes.push(vnode())
+    }
+  }
+  return nodes
+}

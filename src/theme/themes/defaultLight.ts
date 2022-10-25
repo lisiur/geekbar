@@ -1,5 +1,4 @@
 import { Theme } from "../types";
-import { composite, changeColor } from "seemly";
 import { createHoverColor, createPressedColor } from "../utils";
 
 const colors = {
@@ -14,7 +13,6 @@ const colors = {
   textColorDisabled: "#D7DAE0",
   textColor1: "#333",
   textColor2: "#333",
-  clearColor: composite("#FFF", "rgba(0, 0, 0, .4)"),
   dividerColor: "#ebedf0",
   tableHeaderColor: "#ebedf0",
   inputColorDisabled: "#ebedf0",
@@ -28,7 +26,6 @@ const theme: Theme = {
   vars: {
     ...colors,
     baseColor: "#000",
-    hoverColor: changeColor(colors.primaryColor, { alpha: 0.1 }),
     primaryColorHover: createHoverColor(colors.primaryColor),
     primaryColorPressed: createPressedColor(colors.primaryColor),
     infoColorHover: createHoverColor(colors.infoColor),

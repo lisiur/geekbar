@@ -10,13 +10,13 @@ import {
 
 export default defineComponent({
   setup() {
-    const { state, refs, windowHeight, keyupHandler, clickHandler } = useService()
+    const { state, refs, windowHeight, keydownHandler, clickHandler } = useService()
 
     return {
       refs,
       state,
       windowHeight,
-      keyupHandler,
+      keydownHandler,
       clickHandler,
     }
   },
@@ -28,7 +28,18 @@ export default defineComponent({
       <div class="p-2 bg-background rounded-md" style={{
         height: `${INPUT_HEIGHT}px`,
       }}>
-        <NInput
+        <input
+          ref={this.refs.input}
+          class="h-full w-full px-2 bg-transparent focus:bg-[var(--input-focus-color)] shadow-md outline-none"
+          style={{
+            fontSize: `${INPUT_FONT_SIZE}px`,
+            color: 'var(--text-color2)'
+          }}
+          v-model={this.state.keyword}
+          onKeydown={this.keydownHandler}
+          spellcheck={false}
+        ></input>
+        {/* <NInput
           class="h-full shadow-md"
           style={{
             fontSize: `${INPUT_FONT_SIZE}px`,
@@ -45,8 +56,8 @@ export default defineComponent({
           }}
           v-model:value={this.state.keyword}
           autofocus
-          onKeyup={this.keyupHandler}
-        ></NInput>
+          onKeyup={this.keydownHandler}
+        ></NInput> */}
       </div>
       {
         // options section

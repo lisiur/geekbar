@@ -1,5 +1,4 @@
 import { Theme } from "../types";
-import { changeColor } from "seemly";
 import { createHoverColor, createPressedColor } from "../utils";
 
 const colors = {
@@ -34,7 +33,6 @@ const theme: Theme = {
   name: "defaultDark",
   vars: {
     ...colors,
-    // hoverColor: changeColor(colors.primaryColor, { alpha: 0.1 }),
     primaryColorHover: createHoverColor(colors.primaryColor),
     primaryColorPressed: createPressedColor(colors.primaryColor),
     infoColorHover: createHoverColor(colors.infoColor),

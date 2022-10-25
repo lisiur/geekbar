@@ -93,7 +93,7 @@ export function useService() {
     });
     onBeforeUnmount(unListen);
   });
-  // onWindowBlur(hideWindow);
+  onWindowBlur(hideWindow);
 
   // Listen show event
   onBeforeMount(async () => {
@@ -148,7 +148,7 @@ export function useService() {
     onBeforeUnmount(unwatch);
   });
 
-  function keyupHandler(e: KeyboardEvent) {
+  function keydownHandler(e: KeyboardEvent) {
     const { code, ctrlKey, altKey, shiftKey, metaKey } = e;
     switch (code) {
       case "ArrowDown": {
@@ -159,6 +159,7 @@ export function useService() {
         break;
       }
       case "ArrowUp": {
+        e.preventDefault()
         if (state.active === -1) {
           return;
         }
@@ -222,7 +223,7 @@ export function useService() {
     refs,
     resetState,
     windowHeight,
-    keyupHandler,
+    keydownHandler,
     clickHandler,
   };
 }

@@ -1,5 +1,5 @@
 import { defineComponent } from "vue";
-import { NInput, NImage, NIcon } from "naive-ui";
+import { NImage, NIcon } from "naive-ui";
 import { useService, INPUT_HEIGHT, OPTION_ITEM_HEIGHT, INPUT_OPTION_GAP, INPUT_FONT_SIZE, OPTION_TITLE_FONT_SIZE, OPTION_DESC_FONT_SIZE } from "./service";
 import { vIf, vMatch } from "../../utils/jsxHelper";
 import {

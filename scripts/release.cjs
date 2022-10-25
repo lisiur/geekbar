@@ -39,8 +39,8 @@ tauriConfJson.package.version = version;
 jsonfile.writeFileSync(packageJsonPath, packageJson, { spaces: 2 });
 jsonfile.writeFileSync(tauriConfJsonPath, tauriConfJson, { spaces: 2 });
 
-execSync(`git add ${packageJsonPath} ${tauriConfJsonPath}`);
-execSync(`git commit -m 'chore: Release v${version}'`);
+execSync(`git add -A`);
+execSync(`git commit -m "chore: Release v${version}"`);
 execSync(`git tag v${version}`);
 execSync(`git push`);
 execSync(`git push --tags`);

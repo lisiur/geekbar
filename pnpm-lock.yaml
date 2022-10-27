@@ -1,6 +1,9 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@jsplumb/browser-ui': ^5.12.2
+  '@jsplumb/connector-bezier': ^5.12.2
+  '@jsplumb/core': ^5.12.2
   '@tauri-apps/api': ^1.1.0
   '@tauri-apps/cli': ^1.1.0
   '@types/lodash-es': ^4.17.6
@@ -26,6 +29,9 @@ specifiers:
   vue-tsc: ^0.40.0
 
 dependencies:
+  '@jsplumb/browser-ui': 5.12.2
+  '@jsplumb/connector-bezier': 5.12.2
+  '@jsplumb/core': 5.12.2
   '@tauri-apps/api': 1.1.0
   '@vueuse/core': 9.3.1_vue@3.2.41
   lodash-es: 4.17.21
@@ -464,6 +470,34 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
+
+  /@jsplumb/browser-ui/5.12.2:
+    resolution: {integrity: sha512-e84CEW9txMmrpS2q0xKF4kE3Zj4M1rn1wa9ZWmH1eqBhade8YfA2++OiY4YaAAwXgomYnSVwaWaOJpVNtPQgcA==}
+    dependencies:
+      '@jsplumb/core': 5.12.2
+    dev: false
+
+  /@jsplumb/common/5.12.2:
+    resolution: {integrity: sha512-jz4LPO2ehKEooJrTeZzt3nVexQvaEhEpybHgtMKqqvHgaW6B9hYh2NMCziyJghzbaQ+M6fZbYE55yY39iDNr/g==}
+    dependencies:
+      '@jsplumb/util': 5.12.2
+    dev: false
+
+  /@jsplumb/connector-bezier/5.12.2:
+    resolution: {integrity: sha512-/9D0XOHMVTlY4mKPDZQKMUJksULSivaPW2zkqOpcMxjXhRA6uy4SCvBZyYVyOdLJpqSfIzXKmhBpM2ScJX5cGw==}
+    dependencies:
+      '@jsplumb/core': 5.12.2
+    dev: false
+
+  /@jsplumb/core/5.12.2:
+    resolution: {integrity: sha512-q5QSP1JcugE7y/wNdSHVbGj1c9sLjqVqRGl8WJDPHzUZdcpgWFrouuOfo/M65/pZw2r/ldJhKIu8qXnexFWHiA==}
+    dependencies:
+      '@jsplumb/common': 5.12.2
+    dev: false
+
+  /@jsplumb/util/5.12.2:
+    resolution: {integrity: sha512-tZYuXI7rLk6bio/DTpoB18VDVXN4REJaYvQ89/oP3rkPsd5CSlBuC92jY+VQ+Tr0tqvF5wOs5JOpnJMSQ3WqbQ==}
+    dev: false
 
   /@juggle/resize-observer/3.4.0:
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}

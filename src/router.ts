@@ -6,6 +6,10 @@ const router = createRouter({
         {
             path: "/",
             component: () => import("./pages/geekbar"),
+        },
+        {
+            path: "/setting",
+            component: () => import("./pages/setting")
         }
     ],
 })

@@ -1,0 +1,15 @@
+.jtk-connector path {
+    stroke-width: 4px;
+}
+
+.jtk-connector.jtk-hover path {
+    stroke: var(--primary-color);
+    stroke-width: 8px;
+}
+
+.jtk-endpoint.jtk-endpoint-connected.jtk-source-hover circle {
+    fill: var(--primary-color);
+}
+.jtk-endpoint.jtk-endpoint-connected.jtk-target-hover circle {
+    fill: var(--primary-color);
+}

@@ -4,8 +4,8 @@
         {
             "id": "92bea399-bf55-4eca-982b-3e7fe989b076",
             "type": "Trigger",
-            "x": 0,
-            "y": 0,
+            "x": 100,
+            "y": 400,
             "config": {
                 "type": "Keyword",
                 "title": "choose engine",
@@ -41,8 +41,8 @@
         {
             "id": "4b0306a8-6e9a-42e4-bf8e-3d26aca27106",
             "type": "OpenUrl",
-            "x": 600,
-            "y": 700,
+            "x": 500,
+            "y": 400,
             "config": {}
         }
     ],

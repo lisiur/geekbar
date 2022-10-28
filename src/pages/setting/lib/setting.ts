@@ -1,7 +1,18 @@
-import { BrowserJsPlumbInstance, newInstance, EVENT_CONNECTION_CLICK } from "@jsplumb/browser-ui";
-import { Endpoint } from "@jsplumb/core";
+import {
+  BrowserJsPlumbInstance,
+  newInstance,
+  EVENT_CONNECTION_CLICK,
+  EVENT_CONNECTION_MOUSEOUT,
+  EVENT_CONNECTION_MOUSEOVER,
+  EVENT_CONNECTION_MOUSEUP,
+  EVENT_CONNECTION_CONTEXTMENU,
+  EVENT_CONNECTION_DBL_CLICK,
+  EVENT_ELEMENT_DBL_CLICK,
+} from "@jsplumb/browser-ui";
+import { Connection, Endpoint } from "@jsplumb/core";
 import { ConfigSchema, LinkSchema, NodeSchema } from "../types";
 import { BezierConnector } from "@jsplumb/connector-bezier";
+import mitt from "mitt";
 
 const DefaultConnector = {
   type: BezierConnector.type,
@@ -24,9 +35,16 @@ export class Setting {
   private nodesMap: Map<string, SettingNode> = new Map();
   private toLinksMap: Map<string, Array<SettingLink>> = new Map();
   private fromLinksMap: Map<string, Array<SettingLink>> = new Map();
-  private instance: BrowserJsPlumbInstance;
+  public jsPlumb: BrowserJsPlumbInstance;
+  private emitter = mitt<{
+    "link:click": { link: SettingLink; x: number; y: number };
+    "link:dblclick": { link: SettingLink; x: number; y: number };
+    "link:contextmenu": { link: SettingLink; x: number; y: number };
+    "node:dblclick": { node: SettingNode };
+  }>();
+  public on = this.emitter.on;
   constructor(container: Element, private schema: ConfigSchema) {
-    this.instance = newInstance({
+    this.jsPlumb = newInstance({
       container,
       connectionsDetachable: false,
       dragOptions: {
@@ -41,12 +59,33 @@ export class Setting {
       this.initNode(node);
     }
     for (const link of schema.links) {
-        this.initLink(link);
+      this.initLink(link);
     }
 
-    this.instance.bind(EVENT_CONNECTION_CLICK, (conn, e) => {
-        console.log(conn, e)
-    })
+    const linkHandler = (conn: any, e: MouseEvent) => {
+      const link = this.getLink(conn.sourceId, conn.targetId);
+      this.emitter.emit("link:click", {
+        link,
+        x: e.offsetX,
+        y: e.offsetY,
+      });
+    };
+    const nodeHandler = (element: Element) => {
+      const node = this.getNode(element.id)!;
+      this.emitter.emit("node:dblclick", { node });
+    };
+
+    this.jsPlumb.bind(EVENT_CONNECTION_CLICK, linkHandler);
+    this.jsPlumb.bind(EVENT_CONNECTION_DBL_CLICK, linkHandler);
+    this.jsPlumb.bind(EVENT_CONNECTION_CONTEXTMENU, linkHandler);
+    this.jsPlumb.bind(EVENT_ELEMENT_DBL_CLICK, nodeHandler);
+
+    this.jsPlumb.bind(EVENT_CONNECTION_MOUSEOVER, (conn, e) => {
+      const link = this.getLink(conn.sourceId, conn.targetId);
+    });
+    this.jsPlumb.bind(EVENT_CONNECTION_MOUSEOVER, (conn, e) => {
+      console.log(e);
+    });
   }
 
   checkLinkable(from: string, to: string) {
@@ -57,7 +96,7 @@ export class Setting {
   }
 
   addNode(nodeSchema: NodeSchema) {
-    const node = new SettingNode(this.instance, nodeSchema);
+    const node = new SettingNode(this, nodeSchema);
     this.nodes.push(node);
     this.nodesMap.set(node.id, node);
     this.toLinksMap.set(node.id, []);
@@ -78,20 +117,11 @@ export class Setting {
   }
 
   addLink(from: string, to: string) {
-    const fromNode = this.getNode(from);
-    const toNode = this.getNode(to);
-
-    const link = new SettingLink({ from, to });
+    const link = new SettingLink(this, { from, to });
     this.links.push(link);
 
     this.toLinksMap.get(from)?.push(link);
     this.fromLinksMap.get(to)?.push(link);
-
-    this.instance.connect({
-      source: fromNode.fromEp,
-      target: toNode.toEp,
-      connector: DefaultConnector,
-    });
   }
 
   removeLink(link: { from: string; to: string }) {
@@ -101,8 +131,12 @@ export class Setting {
     this.links.splice(index, 1);
   }
 
-  private getNode(id: string) {
+  getNode(id: string) {
     return this.nodesMap.get(id)!;
+  }
+
+  getLink(from: string, to: string) {
+    return this.links.find((item) => item.from === from && item.to === to)!;
   }
 
   private initNode(nodeSchema: NodeSchema) {
@@ -119,18 +153,15 @@ class SettingNode {
   public toEp: Endpoint;
   public el: Element;
   public id: string;
-  constructor(
-    private instance: BrowserJsPlumbInstance,
-    private schema: NodeSchema
-  ) {
+  constructor(private setting: Setting, private schema: NodeSchema) {
     this.id = schema.id;
     this.el = $(schema.id)!;
-    this.fromEp = instance.addEndpoint(this.el, {
+    this.fromEp = this.setting.jsPlumb.addEndpoint(this.el, {
       anchor: "Right",
       endpoint: "Dot",
       source: true,
     });
-    this.toEp = instance.addEndpoint(this.el, {
+    this.toEp = this.setting.jsPlumb.addEndpoint(this.el, {
       anchor: "Left",
       endpoint: "Dot",
       target: true,
@@ -155,7 +186,16 @@ class SettingNode {
 }
 
 class SettingLink {
-  constructor(private schema: LinkSchema) {}
+  private connection: Connection;
+  constructor(private setting: Setting, private schema: LinkSchema) {
+    const fromNode = this.setting.getNode(schema.from);
+    const toNode = this.setting.getNode(schema.to);
+    this.connection = this.setting.jsPlumb.connect({
+      source: fromNode.fromEp,
+      target: toNode.toEp,
+      connector: DefaultConnector,
+    });
+  }
 
   get from() {
     return this.schema.from;
@@ -164,4 +204,16 @@ class SettingLink {
   get to() {
     return this.schema.to;
   }
+
+  get modifiers() {
+    return this.schema.modifiers;
+  }
+
+  get condition() {
+    return this.schema.condition;
+  }
+
+  enterHover() {}
+
+  leaveHover() {}
 }

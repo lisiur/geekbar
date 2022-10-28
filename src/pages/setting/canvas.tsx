@@ -2,6 +2,7 @@ import { computed, defineComponent, onMounted, PropType, reactive, ref } from "v
 import { ConfigSchema, LinkSchema } from "./types";
 import { vFor, vIf } from "../../utils/jsxHelper";
 import { Setting, nodeId } from "./lib/setting";
+import "./lib/setting.css"
 
 const props = {
     config: {

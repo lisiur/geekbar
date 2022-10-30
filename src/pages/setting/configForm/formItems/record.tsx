@@ -1,4 +1,4 @@
-import { defineComponent, PropType } from "vue";
+import { defineComponent, PropType, ref } from "vue";
 import { FormItemSchema, FormSchema, RecordFormItemSchema } from "../../schemas";
 import Form from ".."
 
@@ -14,7 +14,19 @@ const props = {
 export default defineComponent({
     name: "RecordFormItem",
     props,
+    setup() {
+        const formRef = ref<InstanceType<typeof Form> | null>(null);
+
+        function validate() {
+            return formRef.value?.validate()
+        }
+
+        return {
+            formRef,
+            validate,
+        }
+    },
     render() {
-        return <Form model={this.$props.model} schema={this.$props.schema?.items}></Form>
+        return <Form ref="formRef" model={this.$props.model} schema={this.$props.schema?.items}></Form>
     }
 })

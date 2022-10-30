@@ -1,6 +1,6 @@
-import { computed, defineComponent, PropType } from "vue";
+import { defineComponent, PropType } from "vue";
 import { ListFormItemSchema as ListFormItemSchema } from "../../schemas";
-import Form from '..'
+import ConfigForm from '..'
 import { NButton, NIcon } from 'naive-ui'
 import { TrashAltRegular as TrashIcon } from '@vicons/fa'
 
@@ -17,7 +17,7 @@ const props = {
 export default defineComponent({
     name: "ListFormItem",
     props,
-    setup(props, { emit }) {
+    setup(props) {
         const max = props.schema?.max ?? Infinity
         const min = props.schema?.min ?? 0
         const addHandler = () => {
@@ -45,28 +45,14 @@ export default defineComponent({
             registerForm,
             max,
             min,
+            validate,
             addHandler,
             removeHandler,
             showRemoveIcon,
             showAddButton,
         };
     },
-    methods: {
-    },
-    mounted() {
-        this.$emit('mounted', this)
-    },
-    beforeUnmount() {
-        this.$emit('unmounted', this)
-    },
     render() {
-        const styles = {
-            width: '100%',
-            border: '1px solid #eee',
-            borderRadius: '.5rem',
-            padding: '.5rem',
-            marginBottom: '.5rem',
-        }
         const items = this.$props.value!.map((item: any, index: number) => {
             const key = Math.random().toString()
             return <div class="relative" key={key}>
@@ -82,12 +68,12 @@ export default defineComponent({
                         </div>
                         : null
                 }
-                <Form
+                <ConfigForm
                     ref={(el: any) => { this.registerForm(key, el) }}
                     class="w-full border rounded-md p-2 mt-2"
                     model={item}
                     schema={this.$props.schema?.items}
-                ></Form>
+                ></ConfigForm>
             </div>
         })
         return <div class="w-full"> 

@@ -1,15 +1,29 @@
 .jtk-connector path {
+    stroke: var(--connection-color);
     stroke-width: 4px;
 }
 
 .jtk-connector.jtk-hover path {
-    stroke: var(--primary-color);
-    stroke-width: 8px;
+    stroke-width: 6px;
 }
 
+.jtk-endpoint circle {
+    fill: var(--endpoint-color)
+}
 .jtk-endpoint.jtk-endpoint-connected.jtk-source-hover circle {
     fill: var(--primary-color);
 }
 .jtk-endpoint.jtk-endpoint-connected.jtk-target-hover circle {
     fill: var(--primary-color);
+}
+
+.setting-node {
+    z-index: 1;
+}
+.setting-endpoint {
+    background-color: transparent;
+}
+.setting-node.jtk-drag-active .setting-endpoint,
+.setting-node:hover .setting-endpoint {
+    background-color: var(--endpoint-color);
 }

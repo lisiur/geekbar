@@ -7,7 +7,7 @@ export const listFilterConfigSchema: NodeConfigSchema = {
       {
         label: "title",
         prop: "title",
-        required: false,
+        required: true,
         type: "text",
       },
       {

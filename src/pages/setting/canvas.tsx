@@ -1,7 +1,6 @@
-import { computed, defineComponent, nextTick, onMounted, PropType, reactive, ref } from "vue";
-import { NDropdown } from 'naive-ui'
-import { ConfigSchema, LinkSchema, schemas } from "./schemas";
-import { vFor, vIf } from "../../utils/jsxHelper";
+import { defineComponent, onMounted, PropType, reactive, ref } from "vue";
+import { ConfigSchema, schemas } from "./schemas";
+import { vFor } from "../../utils/jsxHelper";
 import { Setting, nodeId } from "./lib/setting";
 import "./lib/setting.css"
 import { useContextmenu } from "./contextmenu";
@@ -26,10 +25,29 @@ export default defineComponent({
         onMounted(() => {
             setting = new Setting(rootDom.value!, props.config!)
             setting.on('node:dblclick', ({ node }) => configNodeHandler(node.id))
+            setting.on('node:contextmenu', ({ node, event }) => nodeContextmenuHandler(node.id, event))
+            setting.on('link:contextmenu', ({ link, event }) => linkContextmenuHandler(link, event))
         })
 
         const { Contextmenu, show: showContextmenu } = useContextmenu()
         const { ConfigDialog, show: showConfigDialog } = useConfigDialog()
+
+        function linkContextmenuHandler(link: {from: string, to: string}, e: MouseEvent) {
+            e.preventDefault();
+            showContextmenu(e, [{
+                key: "link:config",
+                label: "Config",
+            }, {
+                key: "link:delete",
+                label: "Delete",
+            }], async (key) => {
+                if (key === 'link:config') {
+                    configLinkHandler(link)
+                } else if (key === 'link:delete') {
+                    deleteLinkHandler(link)
+                }
+            })
+        }
 
         function nodeContextmenuHandler(nodeId: string, e: MouseEvent) {
             e.preventDefault();
@@ -58,10 +76,20 @@ export default defineComponent({
                     model,
                     formSchema,
                 }).then(() => {
+                    console.log(model)
                 })
             } else {
                 alert(`${nodeType} has no schema`)
             }
+        }
+
+        function configLinkHandler(link: {from: string, to: string}) {
+            const settingLink = setting.getLink(link.from, link.to)
+        }
+
+        function deleteLinkHandler(link: {from: string, to: string}) {
+            const settingLink = setting.getLink(link.from, link.to)
+            setting.removeLink(link)
         }
 
 
@@ -79,14 +107,17 @@ export default defineComponent({
             <div ref="rootDom" class="relative">
                 {
                     vFor(this.nodes, (node) => <div
-                        class="setting-node w-28 h-12 border absolute select-none"
+                        class="setting-node w-28 h-12 border-4 rounded-md absolute select-none"
                         id={nodeId(node.id)}
                         style={{
                             left: node.x + 'px',
                             top: node.y + 'px',
                         }}
-                        onContextmenu={(e) => this.nodeContextmenuHandler(node.id, e)}
-                    >{node.type}</div>)
+                    >
+                        <span> {node.type} </span>
+                        <div class="setting-endpoint source-selector absolute right-0 top-[50%] translate-x-[100%] translate-y-[-50%] w-4 h-4 rounded-r-md"></div>
+                        <div class="setting-endpoint target-selector absolute left-0 top-[50%] translate-x-[-100%] translate-y-[-50%] w-4 h-4 rounded-l-md"></div>
+                    </div>)
                 }
                 <this.Contextmenu></this.Contextmenu>
             </div>

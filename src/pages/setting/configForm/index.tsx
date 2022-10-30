@@ -1,5 +1,5 @@
-import { NForm, NFormItem } from "naive-ui";
-import { defineComponent, PropType, reactive } from "vue";
+import { NForm, NFormItem, FormItemRule } from "naive-ui";
+import { defineComponent, PropType, reactive, ref } from "vue";
 import { ListFormItemSchema, FormItemSchema, FormSchema, RecordFormItemSchema, TextareaFormItemSchema, TextFormItemSchema, JsonFormItemSchema, RadioFormItemSchema, CheckboxFormItemSchema } from "../schemas";
 import { vFor, vMatch } from "../../../utils/jsxHelper";
 import { evalExprToBool } from "../schemas/expr";
@@ -70,23 +70,72 @@ function defaultValue(schema: FormItemSchema) {
     return undefined
 }
 
+function triggerType(schema: FormItemSchema) {
+    switch (schema.type) {
+        case 'json': {
+            return "blur"
+        }
+        case 'text':
+        case 'textarea': {
+            return "input"
+        }
+        default: {
+            return "change"
+        }
+    }
+}
+
 export default defineComponent({
     name: "ConfigForm",
     props,
     setup(props) {
         const model = initModel(props.schema!, props.model)
+        const formRef = ref<InstanceType<typeof NForm> | null>(null)
+        const listFormItemRef = ref<InstanceType<typeof ListFormItem> | null>(null)
+        const recordFormItemRef = ref<any>(null)
+        async function validate(): Promise<undefined> {
+            return Promise.all([
+                formRef.value?.validate(),
+                listFormItemRef.value?.validate(),
+                recordFormItemRef.value?.validate(),
+            ]).then(() => void 0)
+        }
         return {
             model,
-            schema: props.schema!
+            schema: props.schema!,
+            formRef,
+            validate,
+            listFormItemRef,
+            recordFormItemRef,
         }
     },
     render() {
         const _evalExprToBool = evalExprToBool.bind(null, this.$props.model ?? {})
-        return <NForm labelPlacement="left" labelWidth="auto">
+        return <NForm 
+            ref="formRef" 
+            labelPlacement="left" 
+            labelWidth="auto"
+            model={this.$props.model}
+        >
             {
                 vFor(this.$props.schema!.items, (formItemSchema) => {
                     if (_evalExprToBool(formItemSchema.visible ?? true)) {
-                        return <NFormItem label={formItemSchema.label}>
+                        const rules: Array<FormItemRule> = []
+                        const required = _evalExprToBool(formItemSchema.required)
+                        const label = formItemSchema.label ?? ''
+                        const trigger = triggerType(formItemSchema)
+                        if (required) {
+                            rules.push({
+                                required: true,
+                                message: `${label} is required`,
+                                trigger,
+                            })
+                        }
+                        return <NFormItem 
+                            label={formItemSchema.label}
+                            path={formItemSchema.prop}
+                            rule={rules}
+                        >
                             {
                                 vMatch(
                                     [
@@ -119,11 +168,19 @@ export default defineComponent({
                                     ],
                                     [
                                         formItemSchema.type === 'list',
-                                        () => <ListFormItem v-model:value={this.$props.model![formItemSchema.prop]} schema={formItemSchema as ListFormItemSchema}></ListFormItem>
+                                        () => <ListFormItem 
+                                            ref="listFormItemRef"
+                                            v-model:value={this.$props.model![formItemSchema.prop]} 
+                                            schema={formItemSchema as ListFormItemSchema}
+                                        ></ListFormItem>
                                     ],
                                     [
                                         formItemSchema.type === 'record',
-                                        () => <RecordFormItem v-model:value={this.$props.model![formItemSchema.prop]} schema={formItemSchema as RecordFormItemSchema}></RecordFormItem>
+                                        () => <RecordFormItem 
+                                            ref="recordFormItemRef"
+                                            v-model:value={this.$props.model![formItemSchema.prop]}
+                                            schema={formItemSchema as RecordFormItemSchema}
+                                        ></RecordFormItem>
                                     ],
                                     [
                                         formItemSchema.type === 'json',

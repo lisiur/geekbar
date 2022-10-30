@@ -4,6 +4,8 @@ import { createHoverColor, createPressedColor } from "../utils";
 const colors = {
   baseColor: '#fff',
   backgroundColor: '#fff',
+  connectionColor: '#999',
+  endpointColor: '#999',
   primaryColor: "#095188",
   infoColor: "#335FFF",
   successColor: "#4FB233",

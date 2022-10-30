@@ -1,5 +1,5 @@
-import { defineComponent, reactive } from "vue"
-import { NModal } from 'naive-ui'
+import { defineComponent, reactive, ref } from "vue"
+import { NModal, NButton } from 'naive-ui'
 import ConfigForm from './configForm'
 import { FormSchema } from "./schemas"
 
@@ -14,6 +14,9 @@ export function useConfigDialog() {
     let state = reactive({
         show: false,
     })
+    const formRef = ref<InstanceType<typeof ConfigForm> | null>(null)
+    let confirmHandler = () => { }
+    const cancelHandler = hide
     const ConfigDialog = defineComponent({
         name: "ConfigDialog",
         render() {
@@ -24,21 +27,40 @@ export function useConfigDialog() {
                 positive-text="Confirm"
                 negative-text="Cancel"
                 style="width: 560px"
+                onPositiveClick={confirmHandler}
             >
-                <ConfigForm
-                    model={config.model}
-                    schema={config.formSchema}
-                ></ConfigForm>
+                {{
+                    default: () => <ConfigForm
+                        ref={formRef}
+                        model={config.model}
+                        schema={config.formSchema}
+                    ></ConfigForm>,
+                    action: () => [
+                        <NButton onClick={cancelHandler}>Cancel</NButton>,
+                        <NButton type="primary" onClick={confirmHandler}>Confirm</NButton>
+                    ]
+                }}
             </NModal>
         }
     })
+
     async function show(cfg: ConfigDialogConfig) {
         Object.assign(config, cfg)
         state.show = true
+        return new Promise(resolve => {
+            confirmHandler = () => {
+                formRef.value?.validate().then(() => {
+                    resolve(config.model)
+                    hide()
+                })
+            }
+        })
     }
+
     function hide() {
         state.show = false
     }
+
     return {
         ConfigDialog,
         show,

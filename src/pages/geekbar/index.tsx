@@ -39,25 +39,6 @@ export default defineComponent({
           onKeydown={this.keydownHandler}
           spellcheck={false}
         ></input>
-        {/* <NInput
-          class="h-full shadow-md"
-          style={{
-            fontSize: `${INPUT_FONT_SIZE}px`,
-            '--n-height': '100%',
-            '--n-color': 'var(--background-color)',
-            '--n-color-focus': 'var(--input-focus-color)',
-            '--n-border-focus': 'transparent',
-            '--n-border-hover': 'transparent',
-            '--n-box-shadow-focus': 'none'
-          }}
-          ref={this.refs.input}
-          inputProps={{
-            spellcheck: false,
-          }}
-          v-model:value={this.state.keyword}
-          autofocus
-          onKeyup={this.keydownHandler}
-        ></NInput> */}
       </div>
       {
         // options section

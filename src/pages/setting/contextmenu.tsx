@@ -1,19 +1,12 @@
-import { defineComponent, nextTick, reactive, ref } from "vue";
+import { defineComponent, nextTick, onMounted, reactive, ref } from "vue";
 import { NDropdown, DropdownProps } from 'naive-ui'
 
 type ArrayItem<T extends Array<any>> = T extends Array<infer U> ? U : never
 type DropdownOption = ArrayItem<Exclude<DropdownProps['options'], undefined>>
 
-function getMouseOffset(e: MouseEvent) {
-    const target = e.target as HTMLElement
-    return {
-        x: target.offsetLeft + e.offsetX,
-        y: target.offsetTop + e.offsetY,
-    }
-}
-
 export function useContextmenu() {
     const showContextmenu = ref(false)
+
     const contextmenuPos = reactive({
         x: 0,
         y: 0,
@@ -22,9 +15,8 @@ export function useContextmenu() {
     let selectMenuHandler = ref((key: string) => { hide() })
 
     function show(e: MouseEvent, options: Array<DropdownOption>, handler: (key: string) => void) {
-        const pos = getMouseOffset(e)
-        contextmenuPos.x = pos.x
-        contextmenuPos.y = pos.y
+        contextmenuPos.x = e.x
+        contextmenuPos.y = e.y
         selectMenuHandler.value = (key: string) => {
             handler(key)
             hide()
@@ -41,7 +33,7 @@ export function useContextmenu() {
     }
 
     const Contextmenu = defineComponent({
-        name:"Contextmenu",
+        name: "Contextmenu",
         render() {
             return <NDropdown
                 placement="bottom-start"

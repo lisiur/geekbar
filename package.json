@@ -13,11 +13,13 @@
     "major": "node scripts/release.cjs major"
   },
   "dependencies": {
-    "@jsplumb/browser-ui": "^5.12.2",
-    "@jsplumb/connector-bezier": "^5.12.2",
-    "@jsplumb/core": "^5.12.2",
+    "@jsplumb/browser-ui": "5.12.2",
+    "@jsplumb/connector-bezier": "5.12.2",
+    "@jsplumb/connector-flowchart": "5.12.2",
+    "@jsplumb/core": "5.12.2",
     "@tauri-apps/api": "^1.1.0",
     "@vueuse/core": "^9.3.1",
+    "jsonpath-plus": "^7.2.0",
     "lodash-es": "^4.17.21",
     "mitt": "^3.0.0",
     "vue": "^3.2.37",

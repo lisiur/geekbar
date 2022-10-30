@@ -17,6 +17,14 @@ html, body, #app, .n-config-provider {
   -webkit-text-size-adjust: 100%;
 }
 
+/* fix tailwind base button */
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+    background-color: var(--n-color);
+}
+
 ::-webkit-scrollbar {
     width: 2px;
     height: 8px;

@@ -8,7 +8,6 @@ module.exports = {
     extend: {
       colors: {
         background: "var(--background-color)",
-        base: "var(--base-color)",
         primary: "var(--primary-color)",
       }
     },

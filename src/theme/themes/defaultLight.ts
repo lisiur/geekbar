@@ -2,7 +2,7 @@ import { Theme } from "../types";
 import { createHoverColor, createPressedColor } from "../utils";
 
 const colors = {
-  baseColor: '#000',
+  baseColor: '#fff',
   backgroundColor: '#fff',
   primaryColor: "#095188",
   infoColor: "#335FFF",
@@ -25,7 +25,6 @@ const theme: Theme = {
   name: "defaultLight",
   vars: {
     ...colors,
-    baseColor: "#000",
     primaryColorHover: createHoverColor(colors.primaryColor),
     primaryColorPressed: createPressedColor(colors.primaryColor),
     infoColorHover: createHoverColor(colors.infoColor),

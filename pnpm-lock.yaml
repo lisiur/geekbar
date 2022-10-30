@@ -1,9 +1,10 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@jsplumb/browser-ui': ^5.12.2
-  '@jsplumb/connector-bezier': ^5.12.2
-  '@jsplumb/core': ^5.12.2
+  '@jsplumb/browser-ui': 5.12.2
+  '@jsplumb/connector-bezier': 5.12.2
+  '@jsplumb/connector-flowchart': 5.12.2
+  '@jsplumb/core': 5.12.2
   '@tauri-apps/api': ^1.1.0
   '@tauri-apps/cli': ^1.1.0
   '@types/lodash-es': ^4.17.6
@@ -14,6 +15,7 @@ specifiers:
   '@vueuse/core': ^9.3.1
   autoprefixer: ^10.4.12
   jsonfile: ^6.1.0
+  jsonpath-plus: ^7.2.0
   lodash-es: ^4.17.21
   mitt: ^3.0.0
   naive-ui: ^2.33.5
@@ -32,9 +34,11 @@ specifiers:
 dependencies:
   '@jsplumb/browser-ui': 5.12.2
   '@jsplumb/connector-bezier': 5.12.2
+  '@jsplumb/connector-flowchart': 5.12.2
   '@jsplumb/core': 5.12.2
   '@tauri-apps/api': 1.1.0
   '@vueuse/core': 9.3.1_vue@3.2.41
+  jsonpath-plus: 7.2.0
   lodash-es: 4.17.21
   mitt: 3.0.0
   vue: 3.2.41
@@ -487,6 +491,12 @@ packages:
 
   /@jsplumb/connector-bezier/5.12.2:
     resolution: {integrity: sha512-/9D0XOHMVTlY4mKPDZQKMUJksULSivaPW2zkqOpcMxjXhRA6uy4SCvBZyYVyOdLJpqSfIzXKmhBpM2ScJX5cGw==}
+    dependencies:
+      '@jsplumb/core': 5.12.2
+    dev: false
+
+  /@jsplumb/connector-flowchart/5.12.2:
+    resolution: {integrity: sha512-foku8QKmu/Hv5K1D2CzA6AX42LTMfDTyxRCUE8ClO6NMvEa/sGbkZAgQNJNmzKBk0V/9I27qVQjoyycFpfazuQ==}
     dependencies:
       '@jsplumb/core': 5.12.2
     dev: false
@@ -1434,6 +1444,11 @@ packages:
     optionalDependencies:
       graceful-fs: 4.2.10
     dev: true
+
+  /jsonpath-plus/7.2.0:
+    resolution: {integrity: sha512-zBfiUPM5nD0YZSBT/o/fbCUlCcepMIdP0CJZxM1+KgA4f2T206f6VAg9e7mX35+KlMaIc5qXW34f3BnwJ3w+RA==}
+    engines: {node: '>=12.0.0'}
+    dev: false
 
   /lilconfig/2.0.6:
     resolution: {integrity: sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==}

@@ -41,6 +41,7 @@ export function useContextmenu() {
     }
 
     const Contextmenu = defineComponent({
+        name:"Contextmenu",
         render() {
             return <NDropdown
                 placement="bottom-start"

@@ -10,14 +10,14 @@ import {
   EVENT_ELEMENT_DBL_CLICK,
 } from "@jsplumb/browser-ui";
 import { Connection, Endpoint } from "@jsplumb/core";
-import { ConfigSchema, LinkSchema, NodeSchema } from "../types";
-import { BezierConnector } from "@jsplumb/connector-bezier";
+import { ConfigSchema, LinkSchema, NodeSchema } from "../schemas";
+import { FlowchartConnector } from "@jsplumb/connector-flowchart"
 import mitt from "mitt";
 
 const DefaultConnector = {
-  type: BezierConnector.type,
+  type: FlowchartConnector.type,
   options: {
-    curviness: 50,
+    cornerRadius: 8,
   },
 };
 
@@ -27,6 +27,10 @@ function $(id: string) {
 
 export function nodeId(id: string) {
   return "node-" + id;
+}
+
+export function getIdByElement(element: Element) {
+  return element.id.slice(5)
 }
 
 export class Setting {
@@ -71,7 +75,8 @@ export class Setting {
       });
     };
     const nodeHandler = (element: Element) => {
-      const node = this.getNode(element.id)!;
+      const nodeId = getIdByElement(element)
+      const node = this.getNode(nodeId)!;
       this.emitter.emit("node:dblclick", { node });
     };
 
@@ -182,6 +187,14 @@ class SettingNode {
 
   set y(v: number) {
     this.schema.y = v;
+  }
+
+  get type() {
+    return this.schema.type;
+  }
+
+  get config() {
+    return this.schema.config;
   }
 }
 

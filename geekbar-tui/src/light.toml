@@ -1,0 +1,19 @@
+shadow = true
+borders = "simple" # Alternatives are "none" and "simple"
+
+[colors]
+	background = "#b9d9d6"
+
+	shadow     = "#888"
+	view       = "#8DC7BB" # 下拉框未选中 及 光标
+
+	primary   = "#fff"
+	secondary = "#fbdbb4" # 输入框
+	tertiary  = "#fbdbb4"
+
+	title_primary   = "#000"
+	title_secondary = "#ffff55"
+
+	highlight          = "#F88"
+	highlight_inactive = "#258A5E" # 下拉框选中
+	highlight_text = "#8dc7bb"

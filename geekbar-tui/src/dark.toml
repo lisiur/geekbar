@@ -1,0 +1,19 @@
+shadow = false
+borders = "simple" # Alternatives are "none" and "simple"
+
+[colors]
+	background = ["#333", "black"]
+
+	shadow     = "#111"
+	view       = ["#444"] # 下拉框未选中 及 光标
+
+	primary   = "white"
+	secondary = ["white"] # 输入框
+	tertiary  = "white"
+
+	title_primary   = "white"
+	title_secondary = "#white"
+
+	highlight          = "white"
+	highlight_inactive = ["#111", "cyan"] # 下拉框选中
+	highlight_text = "white"

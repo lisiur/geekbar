@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "geekbar-core",
+    "src-tauri",
+]

@@ -111,7 +111,7 @@ export function useService() {
 
   // Listen work params
   onBeforeMount(async () => {
-    const unListen = await event.listen("work_params", (event: any) => {
+    const unListen = await event.listen("work", (event: any) => {
       const workParams = event.payload;
       const prompt = workParams.params?.prompt;
       if (!prompt) {

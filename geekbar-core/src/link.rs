@@ -1,7 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Link {
     pub from: Uuid,
     pub to: Uuid,
@@ -9,7 +9,7 @@ pub struct Link {
     pub modifiers: Option<Vec<Modifier>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub enum Modifier {
     Ctrl,
     Alt,
@@ -17,7 +17,7 @@ pub enum Modifier {
     Meta,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum Condition {
     And(AndCondition),
@@ -25,19 +25,19 @@ pub enum Condition {
     Value(ValueCondition),
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct AndCondition {
     #[allow(dead_code)]
     conditions: Vec<Condition>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct OrCondition {
     #[allow(dead_code)]
     conditions: Vec<Condition>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub enum ValueCondition {
     Eq(serde_json::Value),
     Gt(serde_json::Value),

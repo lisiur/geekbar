@@ -5,7 +5,7 @@ use crate::link::Link;
 use crate::node::Node;
 use crate::nodes::trigger::Trigger;
 use crate::params::Params;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub struct Workflow {
@@ -23,12 +23,23 @@ pub struct Workflow {
     triggers: Vec<Trigger>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct WorkflowConfig {
-    id: Uuid,
+    pub id: Uuid,
     title: String,
     nodes: Vec<WorkflowNode>,
     links: Vec<Link>,
+}
+
+impl WorkflowConfig {
+    pub fn new_empty(name: &str) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            title: name.to_string(),
+            nodes: Vec::new(),
+            links: Vec::new(),
+        }
+    }
 }
 
 impl Workflow {
@@ -76,7 +87,7 @@ impl Workflow {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct WorkflowNode {
     pub id: Uuid,
     #[serde(flatten)]

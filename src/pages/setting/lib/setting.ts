@@ -60,8 +60,8 @@ export class Setting {
   private nodes: Array<SettingNode> = [];
   private links: Array<SettingLink> = [];
   private nodesMap: Map<string, SettingNode> = new Map();
-  private toLinksMap: Map<string, Array<SettingLink>> = new Map();
-  private fromLinksMap: Map<string, Array<SettingLink>> = new Map();
+  private inputLinksMap: Map<string, Set<SettingLink>> = new Map();
+  private outputLinksMap: Map<string, Set<SettingLink>> = new Map();
   public jsPlumb: BrowserJsPlumbInstance;
   private emitter = mitt<{
     "link:click": { link: SettingLink; event: MouseEvent };
@@ -69,8 +69,7 @@ export class Setting {
     "link:contextmenu": { link: SettingLink; event: MouseEvent };
     "link:connect": { link: SettingLink; event: MouseEvent };
     "node:dblclick": { node: SettingNode; event: MouseEvent };
-    "node:contextmenu": { node: SettingNode; event: MouseEvent };
-    "blank:contextmenu": { event: MouseEvent };
+    changed: void;
   }>();
   public on = this.emitter.on;
   constructor(container: Element, public schema: ConfigSchema) {
@@ -96,10 +95,10 @@ export class Setting {
       maxConnections: -1,
     });
     for (const node of schema.nodes) {
-      this.initNode(node);
+      this.syncNode(node);
     }
     for (const link of schema.links) {
-      this.initLink(link);
+      this.syncLink(link.from, link.to);
     }
 
     const linkHandler = (type: string, conn: Connection, event: MouseEvent) => {
@@ -128,29 +127,18 @@ export class Setting {
       EVENT_CONNECTION,
       (payload: { connection: Connection }, event: MouseEvent) => {
         const conn = payload.connection;
-        const from = extractId(conn.source.id);
-        const to = extractId(conn.target.id);
-        // loopback
-        if (from === to) {
+        // "ignoreLogic" means does not handle connect event
+        if (conn.data?.mark !== "ignoreLogic") {
+          const from = extractId(conn.source.id);
+          const to = extractId(conn.target.id);
+          // delete user dragged connection
           setTimeout(() => {
             this.jsPlumb.deleteConnection(conn);
+            // redraw with `addLink`
+            const link = this.addLink(from, to);
+            linkHandler("link:connect", link.connection, event);
           });
-          return;
         }
-        const existLink = this.getLink(from, to);
-        if (existLink) {
-          if (existLink.ignoreLogic) {
-            existLink.ignoreLogic = false
-            return;
-          } else {
-            setTimeout(() => {
-              existLink.remove()
-            });
-            return;
-          }
-        }
-        this.addLink(from, to, conn);
-        linkHandler("link:connect", conn, event);
       }
     );
     this.jsPlumb.bind(
@@ -158,24 +146,17 @@ export class Setting {
       nodeHandler.bind(null, "node:dblclick")
     );
     this.jsPlumb.bind(
-      EVENT_ELEMENT_CONTEXTMENU,
-      nodeHandler.bind(null, "node:contextmenu")
-    );
-    this.jsPlumb.bind(EVENT_ELEMENT_MOUSE_OVER, (element: Element) => {
-      const node = this.getNode(element.id)!;
-    });
-    this.jsPlumb.bind(EVENT_ELEMENT_MOUSE_OUT, (element: Element) => {
-      const node = this.getNode(element.id)!;
-    });
-    this.jsPlumb.bind(
       EVENT_DRAG_MOVE,
       (payload: { el: Element; pos: { x: number; y: number } }) => {
         const node = this.getNode(payload.el.id);
         node.x = payload.pos.x;
         node.y = payload.pos.y;
-        const fromLinks = this.fromLinksMap.get(node.id)!;
-        const toLinks = this.toLinksMap.get(node.id)!;
-        fromLinks.concat(toLinks).forEach((item) => item.redraw());
+        const fromLinks = this.outputLinksMap.get(node.id)!;
+        const toLinks = this.inputLinksMap.get(node.id)!;
+        fromLinks.forEach((item) => item.redraw());
+        toLinks.forEach((item) => item.redraw());
+
+        this.emitter.emit("changed");
       }
     );
   }
@@ -191,63 +172,84 @@ export class Setting {
     const node = new SettingNode(this, nodeSchema);
     this.nodes.push(node);
     this.nodesMap.set(node.id, node);
-    this.toLinksMap.set(node.id, []);
-    this.fromLinksMap.set(node.id, []);
+    this.inputLinksMap.set(node.id, new Set());
+    this.outputLinksMap.set(node.id, new Set());
   }
 
   addNode(node: NodeSchema) {
     this.schema.nodes.push(node);
-    this.syncNode(node);
+    setTimeout(() => {
+      this.jsPlumb.manage($(node.id)!);
+      this.syncNode(node);
+      this.emitter.emit("changed");
+    });
   }
 
   removeNode(id: string) {
+    id = extractId(id);
+
     // remove relative link info
-    const fromLinks = this.fromLinksMap.get(id)!;
-    const toLinks = this.toLinksMap.get(id)!;
-    fromLinks.forEach((item) => this.removeLink(item));
-    toLinks.forEach((item) => this.removeLink(item));
+    const outputLinks = this.outputLinksMap.get(id)!;
+    const inputLinks = this.inputLinksMap.get(id)!;
+    outputLinks.forEach((item) => this.removeLink(item));
+    inputLinks.forEach((item) => this.removeLink(item));
+    this.outputLinksMap.delete(id);
+    this.inputLinksMap.delete(id);
 
     // remove node info
     const index = this.nodes.findIndex((item) => item.id === id)!;
     this.nodes.splice(index, 1);
     this.nodesMap.delete(id);
-    this.fromLinksMap.delete(id);
-    this.toLinksMap.delete(id);
 
-    // remove schema
+    // remove schema info
     this.schema.nodes.splice(
       this.schema.nodes.findIndex((item) => item.id === id),
       1
     );
+
+    this.emitter.emit("changed");
   }
 
-  addLink(from: string, to: string, conn?: Connection) {
+  addLink(from: string, to: string) {
+    from = extractId(from);
+    to = extractId(to);
     this.schema.links.push({
       from,
       to,
     });
-    this.syncLink(from, to, conn);
+    const link = this.syncLink(from, to);
+
+    this.emitter.emit("changed");
+    return link;
   }
 
-  private syncLink(from: string, to: string, conn?: Connection) {
-    const link = new SettingLink(this, { from, to }, conn);
+  private syncLink(from: string, to: string) {
+    const link = new SettingLink(this, { from, to });
     this.links.push(link);
 
-    this.toLinksMap.get(from)?.push(link);
-    this.fromLinksMap.get(to)?.push(link);
+    this.inputLinksMap.get(to)!.add(link);
+    this.outputLinksMap.get(from)!.add(link);
+
+    return link;
   }
 
   removeLink(link: { from: string; to: string }) {
     let index = this.links.findIndex(
       (item) => item.from === link.from && item.to === link.to
     );
-    this.links[index].remove();
+    const deletedLink = this.links[index];
+    deletedLink.remove();
     this.links.splice(index, 1);
+
+    this.inputLinksMap.get(link.to)!.delete(deletedLink);
+    this.outputLinksMap.get(link.from)!.delete(deletedLink);
 
     index = this.schema.links.findIndex(
       (item) => item.from === link.from && item.to === link.to
     );
     this.schema.links.splice(index, 1);
+
+    this.emitter.emit("changed");
   }
 
   getNode(id: string) {
@@ -258,14 +260,6 @@ export class Setting {
     return this.links.find(
       (item) => item.from === extractId(from) && item.to === extractId(to)
     )!;
-  }
-
-  private initNode(nodeSchema: NodeSchema) {
-    this.syncNode(nodeSchema);
-  }
-
-  private initLink(linkSchema: LinkSchema) {
-    this.syncLink(linkSchema.from, linkSchema.to);
   }
 }
 
@@ -303,18 +297,13 @@ class SettingNode {
 }
 
 class SettingLink {
-  private connection: Connection;
+  public connection: Connection;
   private fromNode: SettingNode;
   private toNode: SettingNode;
-  public ignoreLogic = false;
-  constructor(
-    private setting: Setting,
-    private schema: LinkSchema,
-    conn?: Connection
-  ) {
+  constructor(private setting: Setting, private schema: LinkSchema) {
     this.fromNode = this.setting.getNode(schema.from);
     this.toNode = this.setting.getNode(schema.to);
-    this.connection = conn ?? this.draw();
+    this.connection = this.draw();
   }
 
   get from() {
@@ -348,7 +337,6 @@ class SettingLink {
   }
 
   draw() {
-    this.ignoreLogic = true
     this.connection = this.setting.jsPlumb.connect({
       source: this.fromNode.el,
       target: this.toNode.el,
@@ -358,6 +346,9 @@ class SettingLink {
           : DefaultBezierConnector,
       anchors: ["Right", "Left"],
       endpoint: "Blank",
+      data: {
+        mark: "ignoreLogic",
+      },
     });
     return this.connection;
   }

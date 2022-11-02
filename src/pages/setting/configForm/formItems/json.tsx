@@ -26,7 +26,8 @@ export default defineComponent({
                 newValue = JSON.parse(value.value)
                 emit("update:value", newValue)
             } catch(e: any) {
-                alert(e.toString())
+                emit("update:value", undefined)
+                // alert(e.toString())
             }
         }
 

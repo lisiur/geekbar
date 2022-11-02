@@ -24,7 +24,7 @@ const props = {
     }
 }
 
-function initModel(schema: FormSchema, model: Record<string, any> = {}) {
+export function initModel(schema: FormSchema, model: Record<string, any> = {}) {
     for (const itemSchema of schema.items) {
         model[itemSchema.prop] ??= itemSchema.default ?? defaultValue(itemSchema)
     }
@@ -85,6 +85,24 @@ function triggerType(schema: FormItemSchema) {
     }
 }
 
+function dataType(schema: FormItemSchema): FormItemRule['type'] {
+    switch (schema.type) {
+        case 'json': {
+            return "any"
+        }
+        case 'number': {
+            return "number"
+        }
+        case 'checkbox':
+        case 'list': {
+            return 'array'
+        }
+        default: {
+            return "string"
+        }
+    }
+}
+
 export default defineComponent({
     name: "ConfigForm",
     props,
@@ -111,10 +129,11 @@ export default defineComponent({
     },
     render() {
         const _evalExprToBool = evalExprToBool.bind(null, this.$props.model ?? {})
-        return <NForm 
-            ref="formRef" 
-            labelPlacement="left" 
+        return <NForm
+            ref="formRef"
+            labelPlacement="left"
             labelWidth="auto"
+            class="pr-4"
             model={this.$props.model}
         >
             {
@@ -125,13 +144,15 @@ export default defineComponent({
                         const label = formItemSchema.label ?? ''
                         const trigger = triggerType(formItemSchema)
                         if (required) {
-                            rules.push({
+                            const requiredRule: FormItemRule = {
                                 required: true,
                                 message: `${label} is required`,
                                 trigger,
-                            })
+                                type: dataType(formItemSchema),
+                            }
+                            rules.push(requiredRule)
                         }
-                        return <NFormItem 
+                        return <NFormItem
                             label={formItemSchema.label}
                             path={formItemSchema.prop}
                             rule={rules}
@@ -168,15 +189,15 @@ export default defineComponent({
                                     ],
                                     [
                                         formItemSchema.type === 'list',
-                                        () => <ListFormItem 
+                                        () => <ListFormItem
                                             ref="listFormItemRef"
-                                            v-model:value={this.$props.model![formItemSchema.prop]} 
+                                            v-model:value={this.$props.model![formItemSchema.prop]}
                                             schema={formItemSchema as ListFormItemSchema}
                                         ></ListFormItem>
                                     ],
                                     [
                                         formItemSchema.type === 'record',
-                                        () => <RecordFormItem 
+                                        () => <RecordFormItem
                                             ref="recordFormItemRef"
                                             v-model:value={this.$props.model![formItemSchema.prop]}
                                             schema={formItemSchema as RecordFormItemSchema}

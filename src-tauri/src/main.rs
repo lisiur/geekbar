@@ -6,6 +6,7 @@
 mod commands;
 mod system_tray;
 mod workflow;
+mod workflows;
 
 use geekbar_core::work::WorksExecutor;
 use std::{

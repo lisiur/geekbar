@@ -2,7 +2,7 @@ import { defineComponent, PropType } from "vue";
 import { ListFormItemSchema as ListFormItemSchema } from "../../schemas";
 import ConfigForm from '..'
 import { NButton, NIcon } from 'naive-ui'
-import { TrashAltRegular as TrashIcon } from '@vicons/fa'
+import { WindowClose as TrashIcon } from '@vicons/fa'
 
 
 const props = {
@@ -59,10 +59,10 @@ export default defineComponent({
                 {
                     this.showRemoveIcon ?
                         <div
-                            class="absolute top-4 right-[-1.2rem] cursor-pointer"
+                            class="absolute top-2 right-[.5rem] cursor-pointer"
                             onClick={() => this.removeHandler(index)}
                         >
-                            <NIcon color="darkred">
+                            <NIcon color="var(--error-color)" size={20}>
                                 <TrashIcon></TrashIcon>
                             </NIcon>
                         </div>
@@ -70,7 +70,7 @@ export default defineComponent({
                 }
                 <ConfigForm
                     ref={(el: any) => { this.registerForm(key, el) }}
-                    class="w-full border rounded-md p-2 mt-2"
+                    class="w-full border rounded-md pt-8 pr-8 p-2 mt-2"
                     model={item}
                     schema={this.$props.schema?.items}
                 ></ConfigForm>

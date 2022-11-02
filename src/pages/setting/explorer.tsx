@@ -2,12 +2,15 @@ import { NButton, NInput, NText } from "naive-ui";
 import { computed, defineComponent, onMounted, PropType, reactive, watch } from "vue";
 import { dialog } from "../../utils";
 import { vFor } from "../../utils/jsxHelper";
+import { useContextmenu } from "./contextmenu";
 import { ConfigSchema } from "./schemas";
 
 const props = {
     workflows: Object as PropType<Array<ConfigSchema>>,
     onSelect: Function as PropType<(workflow: ConfigSchema) => any>,
-    onCreate: Function as PropType<(name: string) => any>
+    onCreate: Function as PropType<(name: string) => any>,
+    onDelete: Function as PropType<(name: string) => any>,
+    onRename: Function as PropType<(name: string) => any>,
 }
 
 export default defineComponent({
@@ -15,9 +18,52 @@ export default defineComponent({
     props,
     setup(props) {
         const state = reactive({
-            newWorkflowName: '',
             activeWorkflow: undefined as undefined | ConfigSchema
         })
+
+        const { Contextmenu, show: showContextmenu } = useContextmenu()
+
+        function contextmenuHandler(name: string, e: MouseEvent) {
+            e.preventDefault()
+            e.stopPropagation()
+            showContextmenu(e, [{
+                key: "delete",
+                label: "Delete",
+            }], async (key) => {
+                switch (key) {
+                    case 'delete': {
+                        props.onDelete?.(name)
+                        break
+                    }
+                    default: {
+                        const model = reactive({
+                            name,
+                        })
+                        const dl = dialog.create({
+                            title: "Modify workflow name",
+                            content() {
+                                return <NInput v-model:value={model.name}></NInput>
+                            },
+                            action() {
+                                return [
+                                    <NButton onClick={cancelHandler}>Cancel</NButton>,
+                                    <NButton type="primary" disabled={!model.name} onClick={confirmHandler}>Confirm</NButton>
+                                ]
+                            }
+                        })
+                        function cancelHandler() {
+                            dl.destroy();
+                        }
+                        function confirmHandler() {
+                            dl.destroy();
+                            props.onRename?.(model.name)
+                        }
+                        return
+                    }
+                }
+
+            })
+        }
 
         watch(() => props.workflows, () => {
             if (props.workflows?.length) {
@@ -29,18 +75,19 @@ export default defineComponent({
             immediate: true,
         })
 
-        const confirmBtnDisabled = computed(() => !state.newWorkflowName)
-
         function createHandler() {
+            const model = reactive({
+                name: ''
+            })
             const dg = dialog.create({
                 title: "Create new workflow",
                 content() {
-                    return <NInput v-model:value={state.newWorkflowName}></NInput>
+                    return <NInput v-model:value={model.name}></NInput>
                 },
                 action() {
                     return [
                         <NButton onClick={cancelHandler}>Cancel</NButton>,
-                        <NButton type="primary" disabled={confirmBtnDisabled.value} onClick={confirmHandler}>Confirm</NButton>
+                        <NButton type="primary" disabled={!model.name} onClick={confirmHandler}>Confirm</NButton>
                     ]
                 },
             })
@@ -51,7 +98,7 @@ export default defineComponent({
 
             function confirmHandler() {
                 dg.destroy();
-                props.onCreate?.(state.newWorkflowName)
+                props.onCreate?.(model.name)
             }
         }
 
@@ -64,6 +111,8 @@ export default defineComponent({
             state,
             createHandler,
             selectHandler,
+            Contextmenu,
+            contextmenuHandler,
         }
     },
     render() {
@@ -78,6 +127,7 @@ export default defineComponent({
                             return <div
                                 class={["h-12 flex items-center border-b px-4 cursor-pointer", ...[classes]]}
                                 onClick={() => this.selectHandler(config)}
+                                onContextmenu={(e) => this.contextmenuHandler(config.title, e)}
                             >
                                 <span>{config.title}</span>
                             </div>
@@ -85,6 +135,7 @@ export default defineComponent({
                     )
                 }
             </div>
+            <this.Contextmenu></this.Contextmenu>
             <div>
                 <NButton
                     class="w-full"

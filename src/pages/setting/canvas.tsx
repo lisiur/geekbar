@@ -1,11 +1,13 @@
 import { defineComponent, onMounted, PropType, reactive, ref } from "vue";
-import { ConfigSchema, schemas } from "./schemas";
-import { vFor } from "../../utils/jsxHelper";
+import { ConfigSchema, NodeSchema, schemas } from "./schemas";
+import { vFor, vIf } from "../../utils/jsxHelper";
 import { Setting, nodeId } from "./lib/setting";
 import "./lib/setting.css"
 import { useContextmenu } from "./contextmenu";
 import { useConfigDialog } from "./configDialog";
 import { cloneDeep } from "lodash-es";
+import { v4 as uuid } from 'uuid'
+import { initModel } from "./configForm";
 
 const props = {
     config: {
@@ -25,15 +27,15 @@ export default defineComponent({
         onMounted(() => {
             setting = new Setting(rootDom.value!, props.config!)
             setting.on('node:dblclick', ({ node }) => configNodeHandler(node.id))
-            setting.on('node:contextmenu', ({ node, event }) => nodeContextmenuHandler(node.id, event))
             setting.on('link:contextmenu', ({ link, event }) => linkContextmenuHandler(link, event))
         })
 
         const { Contextmenu, show: showContextmenu } = useContextmenu()
         const { ConfigDialog, show: showConfigDialog } = useConfigDialog()
 
-        function linkContextmenuHandler(link: {from: string, to: string}, e: MouseEvent) {
+        function linkContextmenuHandler(link: { from: string, to: string }, e: MouseEvent) {
             e.preventDefault();
+            e.stopPropagation();
             showContextmenu(e, [{
                 key: "link:config",
                 label: "Config",
@@ -51,6 +53,7 @@ export default defineComponent({
 
         function nodeContextmenuHandler(nodeId: string, e: MouseEvent) {
             e.preventDefault();
+            e.stopPropagation();
             showContextmenu(e, [{
                 key: "node:config",
                 label: "Config",
@@ -58,11 +61,46 @@ export default defineComponent({
                 key: "node:delete",
                 label: "Delete",
             }], async (key) => {
-                if (key === 'node:config') {
-                    configNodeHandler(nodeId)
+                switch (key) {
+                    case 'node:config': {
+                        configNodeHandler(nodeId)
+                        break
+                    }
+                    case 'node:delete': {
+                        setting.removeNode(nodeId)
+                        break
+                    }
                 }
             })
         }
+
+        function blankContextmenuHandler(e: MouseEvent) {
+            e.preventDefault();
+            e.stopPropagation();
+            showContextmenu(e, [{
+                key: "new:Trigger",
+                label: "Trigger",
+            }, {
+                key: "new:ListFilter",
+                label: "ListFilter",
+            }], async (key) => {
+                const type = key.split(':')[1]
+                const schema = schemas[type]
+                const config = initModel(schema)
+                setting.addNode({
+                    id: uuid(),
+                    x: e.offsetX,
+                    y: e.offsetY,
+                    type,
+                    config,
+                })
+            })
+        }
+
+        // function addNode(schema: NodeSchema) {
+        //     nodes.push(schema)
+        //     setting.addNode(schema)
+        // }
 
         function configNodeHandler(nodeId: string) {
             const settingNode = setting.getNode(nodeId)
@@ -83,11 +121,11 @@ export default defineComponent({
             }
         }
 
-        function configLinkHandler(link: {from: string, to: string}) {
+        function configLinkHandler(link: { from: string, to: string }) {
             const settingLink = setting.getLink(link.from, link.to)
         }
 
-        function deleteLinkHandler(link: {from: string, to: string}) {
+        function deleteLinkHandler(link: { from: string, to: string }) {
             const settingLink = setting.getLink(link.from, link.to)
             setting.removeLink(link)
         }
@@ -99,24 +137,30 @@ export default defineComponent({
             showContextmenu,
             Contextmenu,
             nodeContextmenuHandler,
+            blankContextmenuHandler,
             ConfigDialog,
         }
     },
     render() {
-        return <div>
+        return <div class="h-full w-full" onContextmenu={this.blankContextmenuHandler}>
             <div ref="rootDom" class="relative">
                 {
                     vFor(this.nodes, (node) => <div
-                        class="setting-node w-28 h-12 border-4 rounded-md absolute select-none"
+                        class="setting-node w-28 h-12 flex items-center justify-center border-4 border-[var(--endpoint-color)] rounded-md bg-background absolute select-none"
                         id={nodeId(node.id)}
+                        key={node.id}
                         style={{
                             left: node.x + 'px',
                             top: node.y + 'px',
                         }}
+                        onContextmenu={(e) => this.nodeContextmenuHandler(node.id, e)}
                     >
                         <span> {node.type} </span>
+                        {vIf(
+                            node.type !== 'Trigger',
+                            () => <div class="setting-endpoint target-selector absolute left-0 top-[50%] translate-x-[-100%] translate-y-[-50%] w-4 h-4 rounded-l-md"></div>
+                        )}
                         <div class="setting-endpoint source-selector absolute right-0 top-[50%] translate-x-[100%] translate-y-[-50%] w-4 h-4 rounded-r-md"></div>
-                        <div class="setting-endpoint target-selector absolute left-0 top-[50%] translate-x-[-100%] translate-y-[-50%] w-4 h-4 rounded-l-md"></div>
                     </div>)
                 }
                 <this.Contextmenu></this.Contextmenu>

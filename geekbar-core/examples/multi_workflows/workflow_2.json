@@ -1,0 +1,54 @@
+{
+    "title": "Search",
+    "nodes": [
+        {
+            "id": "92bea399-bf55-4eca-982b-3e7fe989b076",
+            "type": "Trigger",
+            "config": {
+                "type": "Keyword",
+                "title": "choose engine",
+                "keyword": "search"
+            }
+        },
+        {
+            "id": "30e44c7f-c704-4d85-89f4-1f2d1e61ac77",
+            "type": "ListFilter",
+            "config": {
+                "options": [
+                    {
+                        "title": "baidu",
+                        "value": "https://baidu.com"
+                    },
+                    {
+                        "title": "google",
+                        "value": "https://google.com"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "4b0306a8-6e9a-42e4-bf8e-3d26aca27106",
+            "type": "OpenUrl",
+            "config": {}
+        }
+    ],
+    "links": [
+        {
+            "from": "92bea399-bf55-4eca-982b-3e7fe989b076",
+            "to": "30e44c7f-c704-4d85-89f4-1f2d1e61ac77",
+            "condition": {
+                "type": "And",
+                "conditions": [
+                    {
+                        "type": "Or",
+                        "conditions": []
+                    }
+                ]
+            }
+        },
+        {
+            "from": "30e44c7f-c704-4d85-89f4-1f2d1e61ac77",
+            "to": "4b0306a8-6e9a-42e4-bf8e-3d26aca27106"
+        }
+    ]
+}

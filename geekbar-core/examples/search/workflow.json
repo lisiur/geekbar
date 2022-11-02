@@ -1,0 +1,61 @@
+{
+    "id": "e7308db8-51cc-486f-a652-874497eefff3",
+    "title": "",
+    "nodes": [
+        {
+            "id": "92bea399-bf55-4eca-982b-3e7fe989b076",
+            "type": "Trigger",
+            "config": {
+                "type": "Keyword",
+                "title": "search engine",
+                "keyword": "search"
+            }
+        },
+        {
+            "id": "30e44c7f-c704-4d85-89f4-1f2d1e61ac77",
+            "type": "ListFilter",
+            "config": {
+                "title": "Select a search engine",
+                "need_args": "Always",
+                "options": [
+                    {
+                        "title": "baidu",
+                        "value": "https://baidu.com/s?wd={{query}}",
+                        "description": "search {{query}}"
+                    },
+                    {
+                        "title": "google",
+                        "value": "https://google.com/search?q={{query}}",
+                        "description": "search {{query}}"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "4b0306a8-6e9a-42e4-bf8e-3d26aca27106",
+            "type": "OpenUrl",
+            "config": {
+                "url": "{{query}}"
+            }
+        }
+    ],
+    "links": [
+        {
+            "from": "92bea399-bf55-4eca-982b-3e7fe989b076",
+            "to": "30e44c7f-c704-4d85-89f4-1f2d1e61ac77",
+            "condition": {
+                "type": "And",
+                "conditions": [
+                    {
+                        "type": "Or",
+                        "conditions": []
+                    }
+                ]
+            }
+        },
+        {
+            "from": "30e44c7f-c704-4d85-89f4-1f2d1e61ac77",
+            "to": "4b0306a8-6e9a-42e4-bf8e-3d26aca27106"
+        }
+    ]
+}

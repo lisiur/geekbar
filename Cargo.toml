@@ -5,5 +5,5 @@ members = [
     "geekbar-store",
     "geekbar-cli",
     "geekbar-tui",
-    "src-tauri",
+    "geekbar-gui",
 ]

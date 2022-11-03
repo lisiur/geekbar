@@ -38,12 +38,6 @@ impl WorkflowMeta {
         if !workflow_file_path.exists() {
             anyhow::bail!("workflow.json not exists")
         }
-        let workflow_id = path_buf
-            .file_name()
-            .ok_or_else(|| anyhow::anyhow!("invalid path"))?
-            .to_os_string()
-            .into_string()
-            .map_err(|_| anyhow::anyhow!("invalid path"))?;
 
         let workflow_json = fs::read_to_string(&workflow_file_path)?;
 

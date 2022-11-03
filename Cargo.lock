@@ -1252,6 +1252,7 @@ dependencies = [
  "anyhow",
  "directories",
  "geekbar_core",
+ "serde",
  "serde_json",
  "uuid 1.2.1",
 ]

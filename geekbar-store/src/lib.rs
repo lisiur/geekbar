@@ -1,6 +1,5 @@
 mod store;
 mod workflow_meta;
+mod config;
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+pub use store::Store;

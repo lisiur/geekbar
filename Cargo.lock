@@ -1224,15 +1224,12 @@ dependencies = [
 
 [[package]]
 name = "geekbar"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
- "directories",
  "geekbar_core",
- "serde",
+ "geekbar_store",
  "serde_json",
- "tauri",
- "tauri-build",
 ]
 
 [[package]]
@@ -1243,18 +1240,6 @@ dependencies = [
  "dialoguer",
  "geekbar_core",
  "serde_json",
-]
-
-[[package]]
-name = "geekbar-store"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "directories",
- "geekbar_core",
- "serde",
- "serde_json",
- "uuid 1.2.1",
 ]
 
 [[package]]
@@ -1296,6 +1281,31 @@ dependencies = [
  "thiserror",
  "typetag",
  "url",
+ "uuid 1.2.1",
+]
+
+[[package]]
+name = "geekbar_gui"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "directories",
+ "geekbar",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+]
+
+[[package]]
+name = "geekbar_store"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "directories",
+ "geekbar_core",
+ "serde",
+ "serde_json",
  "uuid 1.2.1",
 ]
 

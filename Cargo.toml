@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "geekbar",
     "geekbar-core",
     "geekbar-store",
     "geekbar-cli",

@@ -82,8 +82,7 @@ impl Executor {
         &self.work_receiver
     }
 
-    pub fn add_workflow(&mut self, workflow: Workflow) {
-        let workflow = Arc::new(workflow);
+    pub fn add_workflow(&mut self, workflow: Arc<Workflow>) {
         let workflow_pid = Uuid::new_v4();
         let workflow_id = workflow.id;
 
@@ -105,7 +104,7 @@ impl Executor {
         });
     }
 
-    pub fn add_workflows(&mut self, workflows: Vec<Workflow>) {
+    pub fn add_workflows(&mut self, workflows: Vec<Arc<Workflow>>) {
         workflows.into_iter().for_each(|wf| self.add_workflow(wf));
     }
 
@@ -242,7 +241,7 @@ impl Executor {
         params: Option<T>,
     ) -> crate::result::Result<bool> {
         let workflow = WorkflowBuilder::default().json(json).build()?;
-        self.add_workflow(workflow);
+        self.add_workflow(Arc::new(workflow));
 
         self.trigger(trigger_id, params)
     }

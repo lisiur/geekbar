@@ -26,7 +26,10 @@ fn main() -> anyhow::Result<()> {
         .json(include_str!("workflow.json"))
         .build()?;
 
-    works_executor.lock().unwrap().add_workflow(workflow);
+    works_executor
+        .lock()
+        .unwrap()
+        .add_workflow(Arc::new(workflow));
 
     let args = std::env::args().collect::<Vec<String>>();
     let keyword = args.get(1).expect("please input keyword");

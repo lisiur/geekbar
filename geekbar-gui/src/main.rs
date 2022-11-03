@@ -5,23 +5,19 @@
 
 mod commands;
 mod system_tray;
-mod workflow;
-mod workflows;
 
-use geekbar_core::executor::Executor;
+use geekbar::Geekbar;
 use std::{
     sync::{Arc, Mutex},
     thread,
 };
 use tauri::Manager;
-use workflow::load_workflows;
 
-pub struct WorksExecutorState(Arc<Mutex<Executor>>);
+pub struct GeekbarState(Arc<Mutex<Geekbar>>);
 
 fn main() -> anyhow::Result<()> {
-    let mut works_executor = Executor::default();
-    works_executor.add_workflows(load_workflows()?);
-    let receiver = works_executor.receiver().clone();
+    let geekbar = Geekbar::init()?;
+    let receiver = geekbar.receiver();
     tauri::Builder::default()
         .setup(|app| {
             let app = app.handle();
@@ -32,7 +28,7 @@ fn main() -> anyhow::Result<()> {
             });
             Ok(())
         })
-        .manage(WorksExecutorState(Arc::new(Mutex::new(works_executor))))
+        .manage(GeekbarState(Arc::new(Mutex::new(geekbar))))
         .invoke_handler(tauri::generate_handler![
             commands::trigger,
             commands::execute,

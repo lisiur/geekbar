@@ -26,7 +26,7 @@ interface Option {
   value: any;
   mark?: "Hint" | "Error";
   icon?: string;
-  workParams: any;
+  work: any;
 }
 export const INPUT_FONT_SIZE = 24;
 export const OPTION_TITLE_FONT_SIZE = 20;
@@ -112,16 +112,16 @@ export function useService() {
   // Listen work params
   onBeforeMount(async () => {
     const unListen = await event.listen("work", (event: any) => {
-      const workParams = event.payload;
-      const prompt = workParams.params?.prompt;
+      const work = event.payload;
+      const prompt = work.params?.prompt;
       if (!prompt) {
-        execute(workParams);
+        execute(work);
       } else {
         if (prompt.type === "FuzzySelect" || prompt.type === "Select") {
           state.options = prompt.config.options.map((item: any) => {
             return {
               ...item,
-              workParams,
+              work,
             };
           });
           if (state.options[0]?.mark) {
@@ -129,7 +129,7 @@ export function useService() {
           } else {
             state.active = 0;
           }
-          workParams.params.prompt = null;
+          work.params.prompt = null;
         }
       }
     });
@@ -205,15 +205,15 @@ export function useService() {
   async function executeOption() {
     const option = state.options[state.active];
     if (option && !option.mark) {
-      execute(option.workParams, option.value);
+      execute(option.work, option.value);
       hideWindow();
     }
   }
 
-  async function execute(workParams: any, value = null) {
-    console.log("execute", workParams, value);
+  async function execute(work: any, value = null) {
+    console.log("execute", work, value);
     await invoke("execute", {
-      workParams,
+      work,
       value,
     });
   }

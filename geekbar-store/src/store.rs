@@ -18,7 +18,7 @@ pub struct Store {
 }
 
 impl Store {
-    pub fn new() -> anyhow::Result<Self> {
+    pub fn init() -> anyhow::Result<Self> {
         let proj_dirs = ProjectDirs::from("top.geekbar", "", "geekbar")
             .ok_or_else(|| anyhow!("Project dir not found"))?;
         let config_dir = proj_dirs.config_dir();
@@ -86,7 +86,7 @@ impl Store {
         Ok(())
     }
 
-    pub fn get_all_workflows(&mut self) -> anyhow::Result<Vec<Arc<Workflow>>> {
+    pub fn fetch_all_workflows(&mut self) -> anyhow::Result<Vec<Arc<Workflow>>> {
         let mut workflows = Vec::new();
         for workflow_meta in self.workflows_meta.values_mut() {
             let workflow = workflow_meta.generate()?;

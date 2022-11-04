@@ -19,6 +19,7 @@
 
 .setting-node {
     z-index: 1;
+    color: var(--base-color);
 }
 .setting-endpoint {
     background-color: transparent;

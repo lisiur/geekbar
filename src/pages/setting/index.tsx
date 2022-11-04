@@ -35,7 +35,7 @@ export default defineComponent({
         }
     },
     render() {
-        return <div class="h-full flex">
+        return <div class="h-full flex bg-background">
             <div class="w-[280px] border-r">
                 <Explorer
                     workflows={this.state.workflows}

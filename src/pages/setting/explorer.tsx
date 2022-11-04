@@ -117,13 +117,13 @@ export default defineComponent({
     },
     render() {
         return <div class="h-full flex flex-col">
-            <div class="flex-1 overflow-auto">
+            <div class="flex-1 overflow-auto text-[var(--base-color)]">
                 {
                     vFor(
                         this.$props.workflows ?? [],
                         (config) => {
                             const isActive = this.state.activeWorkflow === config
-                            const classes = isActive ? ["bg-primary text-background"] : []
+                            const classes = isActive ? ["bg-primary"] : []
                             return <div
                                 class={["h-12 flex items-center border-b px-4 cursor-pointer", ...[classes]]}
                                 onClick={() => this.selectHandler(config)}

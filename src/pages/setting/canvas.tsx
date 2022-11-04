@@ -1,4 +1,4 @@
-import { defineComponent, onMounted, PropType, reactive, ref } from "vue";
+import { defineComponent, nextTick, onMounted, PropType, reactive, ref, watch } from "vue";
 import { ConfigSchema, NodeSchema, schemas } from "./schemas";
 import { vFor, vIf } from "../../utils/jsxHelper";
 import { Setting, nodeId } from "./lib/setting";
@@ -20,14 +20,24 @@ export default defineComponent({
     props,
     setup(props) {
         const rootDom = ref<HTMLElement | null>(null)
-
-        const nodes = reactive(props.config?.nodes ?? [])
+        const nodes = ref<Array<NodeSchema>>([])
 
         let setting!: Setting;
         onMounted(() => {
-            setting = new Setting(rootDom.value!, props.config!)
-            setting.on('node:dblclick', ({ node }) => configNodeHandler(node.id))
-            setting.on('link:contextmenu', ({ link, event }) => linkContextmenuHandler(link, event))
+            watch(() => props.config, () => {
+                if (setting) {
+                    setting.destroy()
+                }
+                nodes.value = props.config!.nodes
+                nextTick(() => {
+                    setting = new Setting(rootDom.value!, props.config!)
+                    setting.on('node:dblclick', ({ node }) => configNodeHandler(node.id))
+                    setting.on('link:contextmenu', ({ link, event }) => linkContextmenuHandler(link, event))
+                })
+
+            }, {
+                immediate: true,
+            })
         })
 
         const { Contextmenu, show: showContextmenu } = useContextmenu()

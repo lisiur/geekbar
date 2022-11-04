@@ -261,6 +261,10 @@ export class Setting {
       (item) => item.from === extractId(from) && item.to === extractId(to)
     )!;
   }
+
+  destroy() {
+    this.jsPlumb.destroy()
+  }
 }
 
 class SettingNode {

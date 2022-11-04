@@ -59,9 +59,21 @@ impl Store {
         Ok(store)
     }
 
+    pub fn get_workflow_json(&self, workflow_id: Uuid) -> &str {
+        self.workflows_meta
+            .get(&workflow_id)
+            .unwrap()
+            .get_workflow_json()
+    }
+
     pub fn create_workflow(&mut self, name: &str) -> anyhow::Result<Uuid> {
         let workflow_config = WorkflowConfig::new_empty(name);
 
+        self.save_workflow(workflow_config)
+    }
+
+    pub fn save_workflow_json(&mut self, workflow_json: &str) -> anyhow::Result<Uuid> {
+        let workflow_config: WorkflowConfig = serde_json::from_str(workflow_json)?;
         self.save_workflow(workflow_config)
     }
 
@@ -89,7 +101,7 @@ impl Store {
     pub fn fetch_all_workflows(&mut self) -> anyhow::Result<Vec<Arc<Workflow>>> {
         let mut workflows = Vec::new();
         for workflow_meta in self.workflows_meta.values_mut() {
-            let workflow = workflow_meta.generate()?;
+            let workflow = workflow_meta.spawn()?;
             workflows.push(workflow);
         }
 
@@ -113,12 +125,36 @@ impl Store {
         Ok(workflows)
     }
 
-    pub fn get_workflow(&mut self, workflow_id: Uuid) -> anyhow::Result<Option<Arc<Workflow>>> {
-        let workflow_meta = self.workflows_meta.get_mut(&workflow_id);
-        match workflow_meta {
-            Some(workflow_meta) => Ok(Some(workflow_meta.generate()?)),
-            None => Ok(None),
+    pub fn fetch_all_workflows_json(&mut self) -> anyhow::Result<Vec<String>> {
+        let mut workflows = Vec::new();
+        for workflow_meta in self.workflows_meta.values_mut() {
+            let workflow_json = workflow_meta.get_workflow_json();
+            workflows.push((workflow_meta.workflow_id(), workflow_json));
         }
+
+        workflows.sort_by(|a, b| {
+            let a = self
+                .config
+                .workflows
+                .iter()
+                .position(|w| w.eq(&a.0))
+                .unwrap();
+            let b = self
+                .config
+                .workflows
+                .iter()
+                .position(|w| w.eq(&b.0))
+                .unwrap();
+
+            a.cmp(&b)
+        });
+
+        Ok(workflows.into_iter().map(|x| x.1.to_string()).collect())
+    }
+
+    pub fn spawn_workflow(&mut self, workflow_id: Uuid) -> anyhow::Result<Arc<Workflow>> {
+        let workflow_meta = self.workflows_meta.get_mut(&workflow_id).unwrap();
+        workflow_meta.spawn()
     }
 
     pub fn move_workflow(&mut self, from: usize, to: usize) -> anyhow::Result<()> {

@@ -47,6 +47,37 @@ impl Workflow {
         WorkflowBuilder::default().json(json).build()
     }
 
+    pub fn from_config(workflow_config: WorkflowConfig) -> crate::result::Result<Self> {
+        let mut nodes = HashMap::new();
+        let mut links = HashMap::<Uuid, Vec<Link>>::new();
+        let mut entries = HashMap::<String, Uuid>::new();
+        let mut triggers = Vec::new();
+
+        for node in workflow_config.nodes {
+            if node.node.typetag_name().eq("Trigger") {
+                let trigger = node
+                    .node
+                    .as_any()
+                    .downcast_ref::<Trigger>()
+                    .expect("node is not a Trigger");
+                triggers.push(trigger.to_owned());
+                entries.insert(trigger.id(), node.id);
+            }
+            nodes.insert(node.id, node);
+        }
+        for link in workflow_config.links {
+            links.entry(link.from).or_default().push(link);
+        }
+        Ok(Workflow {
+            id: workflow_config.id,
+            title: workflow_config.title,
+            nodes,
+            links,
+            entries,
+            triggers,
+        })
+    }
+
     pub fn has_trigger(&self, trigger_id: &str) -> bool {
         self.entries.contains_key(trigger_id)
     }
@@ -115,36 +146,9 @@ impl WorkflowBuilder {
     }
 
     pub fn build(self) -> crate::result::Result<Workflow> {
-        let mut nodes = HashMap::new();
-        let mut links = HashMap::<Uuid, Vec<Link>>::new();
-        let mut entries = HashMap::<String, Uuid>::new();
-        let mut triggers = Vec::new();
-
         let json_config = self._json.expect("json config is required");
-
         let workflow_config: WorkflowConfig = serde_json::from_str(&json_config)?;
-        for node in workflow_config.nodes {
-            if node.node.typetag_name().eq("Trigger") {
-                let trigger = node
-                    .node
-                    .as_any()
-                    .downcast_ref::<Trigger>()
-                    .expect("node is not a Trigger");
-                triggers.push(trigger.to_owned());
-                entries.insert(trigger.id(), node.id);
-            }
-            nodes.insert(node.id, node);
-        }
-        for link in workflow_config.links {
-            links.entry(link.from).or_default().push(link);
-        }
-        Ok(Workflow {
-            id: workflow_config.id,
-            title: workflow_config.title,
-            nodes,
-            links,
-            entries,
-            triggers,
-        })
+
+        Workflow::from_config(workflow_config)
     }
 }

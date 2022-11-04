@@ -1230,6 +1230,7 @@ dependencies = [
  "geekbar_core",
  "geekbar_store",
  "serde_json",
+ "uuid 1.2.1",
 ]
 
 [[package]]
@@ -1295,6 +1296,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "uuid 1.2.1",
 ]
 
 [[package]]

@@ -32,6 +32,11 @@ fn main() -> anyhow::Result<()> {
         .invoke_handler(tauri::generate_handler![
             commands::trigger,
             commands::execute,
+            commands::fetch_all_workflows,
+            commands::create_workflow,
+            commands::delete_workflow,
+            commands::move_workflow,
+            commands::save_workflow,
         ])
         .system_tray(system_tray::init())
         .on_system_tray_event(system_tray::event_handler)

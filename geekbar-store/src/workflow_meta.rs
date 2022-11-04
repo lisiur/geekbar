@@ -4,18 +4,19 @@ use std::{
     time::SystemTime,
 };
 
-use geekbar_core::workflow::Workflow;
+use geekbar_core::workflow::{Workflow, WorkflowConfig};
 use std::fs;
 use uuid::Uuid;
 
 pub struct WorkflowMeta {
     path: PathBuf,
     timestamp: SystemTime,
+    workflow_json: String,
     workflow: Arc<Workflow>,
 }
 
 impl WorkflowMeta {
-    pub fn generate(&mut self) -> anyhow::Result<Arc<Workflow>> {
+    pub fn spawn(&mut self) -> anyhow::Result<Arc<Workflow>> {
         let metadata = fs::metadata(&self.path)?;
         let timestamp = metadata.modified()?;
         if timestamp.ne(&self.timestamp) {
@@ -23,6 +24,7 @@ impl WorkflowMeta {
             let workflow = Workflow::from_json(&workflow_json)?;
             self.timestamp = timestamp;
             self.workflow = Arc::new(workflow);
+            self.workflow_json = workflow_json;
         }
         Ok(self.workflow.clone())
     }
@@ -46,8 +48,13 @@ impl WorkflowMeta {
         let workflow_meta = WorkflowMeta {
             path: workflow_file_path,
             timestamp: metadata.modified()?,
+            workflow_json,
             workflow: Arc::new(workflow),
         };
         Ok(workflow_meta)
+    }
+
+    pub fn get_workflow_json(&self) -> &str {
+        &self.workflow_json
     }
 }

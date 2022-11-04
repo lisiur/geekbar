@@ -10,3 +10,4 @@ anyhow = "1.0.66"
 geekbar_core = { path = "../geekbar-core" }
 geekbar_store = { path = "../geekbar-store" }
 serde_json = "1.0.87"
+uuid = { version ="1.2.1", features = ["v4"]}

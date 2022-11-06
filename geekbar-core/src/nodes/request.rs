@@ -9,10 +9,15 @@ const fn _default_timeout() -> u64 {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Request {
+    #[serde(default)]
     pub url: String,
+    #[serde(default)]
     pub method: RequestMethod,
+    #[serde(default)]
     pub content_type: RequestContentType,
+    #[serde(default)]
     pub body: Value,
+    #[serde(default)]
     pub headers: HashMap<String, String>,
     #[serde(default = "_default_timeout")]
     pub timeout: u64,
@@ -25,6 +30,18 @@ pub enum RequestMethod {
     Put,
     Delete,
     Patch,
+}
+
+impl Default for RequestMethod {
+    fn default() -> Self {
+        Self::Get
+    }
+}
+
+impl Default for RequestContentType {
+    fn default() -> Self {
+        Self::Json
+    }
 }
 
 impl From<RequestMethod> for Method {

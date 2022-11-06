@@ -2,6 +2,7 @@ use super::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpenUrl {
+    #[serde(default)]
     url: String,
 }
 

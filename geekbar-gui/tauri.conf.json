@@ -3,7 +3,7 @@
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
     "devPath": "http://localhost:1420",
-    "distDir": "../dist",
+    "distDir": "views/dist",
     "withGlobalTauri": false
   },
   "package": {
@@ -55,6 +55,7 @@
     },
     "windows": [
       {
+        "label": "geekbar",
         "title": "geekbar",
         "fullscreen": false,
         "transparent": true,

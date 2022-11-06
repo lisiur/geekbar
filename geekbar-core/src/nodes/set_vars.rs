@@ -4,6 +4,7 @@ use super::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SetVars {
+    #[serde(default)]
     vars: HashMap<String, Value>,
 }
 

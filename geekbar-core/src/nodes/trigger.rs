@@ -3,8 +3,18 @@ use super::prelude::*;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub enum Trigger {
-    Keyword { keyword: String, title: String },
-    Shortcut { keys: Vec<String>, title: String },
+    Keyword {
+        #[serde(default)]
+        keyword: String,
+        #[serde(default)]
+        title: String,
+    },
+    Shortcut {
+        #[serde(default)]
+        keys: Vec<String>,
+        #[serde(default)]
+        title: String,
+    },
 }
 
 #[typetag::serde(name = "Trigger")]

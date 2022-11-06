@@ -2,6 +2,7 @@ use anyhow::anyhow;
 use directories::ProjectDirs;
 use geekbar_core::workflow::{Workflow, WorkflowConfig};
 use std::collections::HashMap;
+use std::ops::Index;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{fs, vec};
@@ -68,8 +69,12 @@ impl Store {
 
     pub fn create_workflow(&mut self, name: &str) -> anyhow::Result<Uuid> {
         let workflow_config = WorkflowConfig::new_empty(name);
+        let workflow_id = self.save_workflow(workflow_config)?;
 
-        self.save_workflow(workflow_config)
+        self.config.workflows.push(workflow_id);
+        self.save_config()?;
+
+        Ok(workflow_id)
     }
 
     pub fn save_workflow_json(&mut self, workflow_json: &str) -> anyhow::Result<Uuid> {
@@ -79,6 +84,7 @@ impl Store {
 
     pub fn save_workflow(&mut self, workflow_config: WorkflowConfig) -> anyhow::Result<Uuid> {
         let workflow_file_path = self.save_workflow_file(&workflow_config)?;
+        tracing::info!(?workflow_file_path);
 
         let workflow_meta = WorkflowMeta::load_from_path(&workflow_file_path)?;
 
@@ -90,10 +96,16 @@ impl Store {
 
     pub fn delete_workflow(&mut self, workflow_id: Uuid) -> anyhow::Result<()> {
         let workflow_dir_path = self.workflow_dir_path(workflow_id);
-
         self.workflows_meta.remove(&workflow_id);
-
         fs::remove_dir_all(&workflow_dir_path)?;
+
+        let index = self
+            .config
+            .workflows
+            .iter()
+            .position(|e| e.eq(&workflow_id))
+            .unwrap();
+        self.config.workflows.remove(index);
 
         Ok(())
     }
@@ -160,7 +172,14 @@ impl Store {
     pub fn move_workflow(&mut self, from: usize, to: usize) -> anyhow::Result<()> {
         let from_id = self.config.workflows.remove(from);
         self.config.workflows.insert(to, from_id);
-        std::fs::write(&self.config_path, serde_json::to_string(&self.config)?)?;
+        self.save_config()?;
+
+        Ok(())
+    }
+
+    fn save_config(&self) -> anyhow::Result<()> {
+        let config_json = serde_json::to_string(&self.config)?;
+        std::fs::write(&self.config_path, config_json)?;
 
         Ok(())
     }
@@ -168,8 +187,9 @@ impl Store {
     fn load_workflows_from_dir(workflows_dir: &Path) -> anyhow::Result<Vec<WorkflowMeta>> {
         let mut vec = Vec::new();
         for entry in fs::read_dir(workflows_dir)? {
-            let path = entry?.path();
-            vec.push(WorkflowMeta::load_from_path(&path)?)
+            let workflow_dir_path = entry?.path();
+            let workflow_json_path = workflow_dir_path.join("workflow.json");
+            vec.push(WorkflowMeta::load_from_path(&workflow_json_path)?)
         }
         Ok(vec)
     }

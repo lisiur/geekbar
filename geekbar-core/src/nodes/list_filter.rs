@@ -4,6 +4,7 @@ use crate::utils;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ListFilter {
     pub title: Option<String>,
+    #[serde(default)]
     pub options: Vec<ListOption>,
     #[serde(default)]
     pub need_args: NeedArgs,

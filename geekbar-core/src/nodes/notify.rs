@@ -3,6 +3,7 @@ use crate::utils;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Notify {
+    #[serde(default)]
     summary: String,
     #[serde(default)]
     body: String,

@@ -49,13 +49,14 @@ pub async fn fetch_all_workflows(geekbar: State<'_, GeekbarState>) -> Result<Vec
 pub async fn create_workflow(
     geekbar: State<'_, GeekbarState>,
     workflow_name: String,
-) -> Result<Uuid, String> {
-    geekbar
-        .0
-        .lock()
-        .unwrap()
+) -> Result<String, String> {
+    let mut geekbar = geekbar.0.lock().unwrap();
+    let workflow_id = geekbar
         .create_workflow(&workflow_name)
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    let geekbar_json = geekbar.get_workflow_json(workflow_id);
+
+    Ok(geekbar_json.to_string())
 }
 
 #[command]

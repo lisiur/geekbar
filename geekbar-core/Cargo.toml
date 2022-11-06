@@ -28,6 +28,8 @@ directories = "4.0.1"
 # https://github.com/enigo-rs/enigo/issues/55
 enigo = "0.0.14"
 pinyin = "0.9.0"
+tracing-subscriber = "0.3.16"
+tracing = "0.1.37"
 
 [dev-dependencies]
 anyhow = "1.0.58"

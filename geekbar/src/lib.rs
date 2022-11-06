@@ -64,6 +64,8 @@ impl Geekbar {
 
     pub fn save_workflow(&mut self, workflow_config: WorkflowConfig) -> anyhow::Result<()> {
         let workflow_id = self.store.save_workflow(workflow_config)?;
+        tracing::info!(?workflow_id);
+
         self.executor.remove_workflow(workflow_id);
 
         let workflow = self.store.spawn_workflow(workflow_id)?;

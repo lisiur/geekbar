@@ -3,6 +3,7 @@ use crate::utils;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Clipboard {
+    #[serde(default)]
     pub content: String,
 }
 

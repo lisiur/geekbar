@@ -12,3 +12,5 @@ directories = "4.0.1"
 uuid = { version = "1.2.1", features = ["serde", "v4"] }
 serde_json = "1.0.87"
 serde = { version = "1.0.147", features = ["derive"]}
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"

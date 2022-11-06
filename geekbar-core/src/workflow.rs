@@ -123,6 +123,8 @@ pub struct WorkflowNode {
     pub id: Uuid,
     #[serde(flatten)]
     pub node: Box<dyn Node>,
+    x: Option<f32>,
+    y: Option<f32>,
 }
 
 pub struct WorkflowBuilder {

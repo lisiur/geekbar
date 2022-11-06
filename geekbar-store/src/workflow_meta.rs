@@ -35,9 +35,9 @@ impl WorkflowMeta {
 
     pub fn load_from_path(path: impl AsRef<Path>) -> anyhow::Result<Self> {
         let metadata = fs::metadata(path.as_ref())?;
-        let path_buf = path.as_ref().to_path_buf();
-        let workflow_file_path = path_buf.join("workflow.json");
+        let workflow_file_path = path.as_ref().to_path_buf();
         if !workflow_file_path.exists() {
+            tracing::error!(?workflow_file_path, "workflow.json not exists",);
             anyhow::bail!("workflow.json not exists")
         }
 

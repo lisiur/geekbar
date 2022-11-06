@@ -5,6 +5,7 @@
 
 mod commands;
 mod system_tray;
+mod utils;
 
 use geekbar::Geekbar;
 use std::{
@@ -12,20 +13,36 @@ use std::{
     thread,
 };
 use tauri::Manager;
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 pub struct GeekbarState(Arc<Mutex<Geekbar>>);
 
 fn main() -> anyhow::Result<()> {
+    tracing_subscriber::registry().with(fmt::layer()).init();
+
     let geekbar = Geekbar::init()?;
     let receiver = geekbar.receiver();
     tauri::Builder::default()
         .setup(|app| {
-            let app = app.handle();
+            let app_handle = app.handle();
             thread::spawn(move || {
                 while let Ok(work) = receiver.recv() {
-                    app.emit_all("work", work).unwrap();
+                    app_handle.emit_all("work", work).unwrap();
                 }
             });
+
+            let app_handle = app.handle();
+            app.listen_global("hide_splashscreen", move |_event| {
+                utils::hide_splashscreen(&app_handle);
+            });
+
+            let app_handle = app.handle();
+            app.listen_global("show_window", move |event| {
+                let window_label = event.payload().unwrap();
+                tracing::info!(window_label, "show_window");
+                utils::show_window(&app_handle, window_label);
+            });
+
             Ok(())
         })
         .manage(GeekbarState(Arc::new(Mutex::new(geekbar))))

@@ -30,7 +30,6 @@ pub fn show_setting_window(app: &AppHandle<Wry>) {
         .visible(false)
         .resizable(false)
         .inner_size(window_width, window_height)
-        .transparent(false)
         .build()
         .unwrap();
     }
@@ -54,7 +53,6 @@ pub fn show_splashscreen(app: &AppHandle<Wry>) {
         .visible(true)
         .resizable(false)
         .inner_size(window_width, window_height)
-        .transparent(false)
         .build()
         .unwrap();
     }

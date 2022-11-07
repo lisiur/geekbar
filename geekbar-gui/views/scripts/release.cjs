@@ -25,7 +25,7 @@ function incVer(version, type) {
 const packageJsonPath = path.resolve(__dirname, "../package.json");
 const tauriConfJsonPath = path.resolve(
   __dirname,
-  "../src-tauri/tauri.conf.json"
+  "../../tauri.conf.json"
 );
 
 const packageJson = jsonfile.readFileSync(packageJsonPath);
